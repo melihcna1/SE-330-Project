@@ -1,7 +1,5 @@
 package com.example.ce316project;
 
-import com.example.ce316project.ToolSpec;
-
 import java.util.List;
 
 /**
@@ -35,6 +33,17 @@ public class Configuration {
     public void setTestCases(List<TestCase> testCases) {
         this.testCases = testCases;
     }
+
+    public String getRunCmd() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getRunCmd'");
+    }
+
+    public String getCompileCmd() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getCompileCmd'");
+    }
+
 }
 
 class TestCase {
