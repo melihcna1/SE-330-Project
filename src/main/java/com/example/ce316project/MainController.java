@@ -23,8 +23,6 @@ public class MainController {
 
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
-        initializeNewProject(new File("sample/config"), new File("sample/submissions"));
-        showDetailedResults();
     }
 
     public Project getCurrentProject() {
@@ -72,6 +70,7 @@ public class MainController {
         sampleResults.add(new StudentResult("S123", "Passed", "No errors", "Program ran successfully", "Output matches", System.currentTimeMillis()));
         sampleResults.add(new StudentResult("S124", "Failed", "Compile error", "Failed to compile", "No output", System.currentTimeMillis()));
         currentProject.setResults(sampleResults);
+        showDetailedResults();
     }
 
     @FXML

@@ -1,20 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.GridPane?>
 
-<GridPane fx:id="setupPane" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.ProjectSetupController"
-          hgap="10" vgap="10" padding="20">
-    <Label text="Configuration Directory:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
-    <TextField fx:id="configDirField" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
-    <Button text="Browse..." onAction="#handleBrowseConfig" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.ProjectSetupController" spacing="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
 
-    <Label text="Submissions Directory:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
-    <TextField fx:id="submissionsDirField" editable="false" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
-    <Button text="Browse..." onAction="#handleBrowseSubmissions" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+    <Label text="Select Configuration Directory"/>
+    <HBox spacing="10">
+        <TextField fx:id="txtConfigDir" prefWidth="300.0" editable="false"/>
+        <Button fx:id="btnSelectConfigDir" text="Browse..." onAction="#selectConfigDir"/>
+    </HBox>
 
-    <Button text="Start Project" onAction="#handleStartProject" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
-</GridPane>
+    <Label text="Select Submissions Directory"/>
+    <HBox spacing="10">
+        <TextField fx:id="txtSubmissionsDir" prefWidth="300.0" editable="false"/>
+        <Button fx:id="btnSelectSubmissionsDir" text="Browse..." onAction="#selectSubmissionsDir"/>
+    </HBox>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="btnCreate" text="Create Project" onAction="#createProject"/>
+        <Button fx:id="btnCancel" text="Cancel" onAction="#cancel"/>
+    </HBox>
+</VBox>
