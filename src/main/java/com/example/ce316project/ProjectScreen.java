@@ -26,8 +26,8 @@ public class ProjectScreen extends Application {
 
 
     @FXML
-    public TextField txtfieldProjectName, txtfieldConfiguration, txtfieldInputFile, txtfieldexpectedOutputFile, txtfieldSubmissionFolder;
-    public Button btnConfiguration, btnInputFile, btnExpectedOutputFile, btnSubmissionFolder, btnSaveProject;
+    public TextField txtfieldProjectName, txtfieldConfiguration, txtfieldInputFile, txtfieldexpectedOutputFile, txtfieldSubmissionFolder, txtfieldResultFolder;
+    public Button btnConfiguration, btnInputFile, btnExpectedOutputFile, btnSubmissionFolder, btnResultFolder, btnSaveProject;
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -101,6 +101,18 @@ public class ProjectScreen extends Application {
     }
 
     @FXML
+    private void getResultFolder() {
+        txtfieldResultFolder.clear();
+        DirectoryChooser directoryChooser = new DirectoryChooser();
+        File folder = directoryChooser.showDialog(thisStage);
+        if (folder != null) {
+            txtfieldResultFolder.setText(folder.getPath());
+        }
+
+    }
+
+
+    @FXML
     private void saveProject() {
         if (txtfieldProjectName.getText().isBlank()) {
             showAlert("NAME IS EMPTY", "Please Enter the Project Name.");
@@ -119,7 +131,7 @@ public class ProjectScreen extends Application {
             try {
                 new File("src/PROJECTS").mkdirs();
             } catch (Exception e) {
-               e.printStackTrace();
+                e.printStackTrace();
             }
 
 
@@ -129,7 +141,7 @@ public class ProjectScreen extends Application {
                 Path path = Paths.get(s);
                 File projectFile = Files.createFile(path).toFile();
                 Project.TestCase testCase = new Project.TestCase(txtfieldInputFile.getText(), txtfieldexpectedOutputFile.getText());
-                Project project = new Project(txtfieldProjectName.getText(), txtfieldConfiguration.getText(), txtfieldSubmissionFolder.getText(), testCase);
+                Project project = new Project(txtfieldProjectName.getText(), txtfieldConfiguration.getText(), txtfieldSubmissionFolder.getText(), txtfieldResultFolder.getText(), testCase);
                 ProjectIO.save(project, path);
             } catch (FileAlreadyExistsException e) {
                 showAlert("FILE ALREADY EXISTS", "Please Enter a different name or delete the other file.");

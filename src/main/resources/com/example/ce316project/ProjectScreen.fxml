@@ -25,6 +25,9 @@
             <Label layoutX="20.0" layoutY="180.0" text="Submission Folder:" />
             <TextField fx:id="txtfieldSubmissionFolder" layoutX="140.0" layoutY="175.0" prefHeight="25.0" prefWidth="350.0" />
             <Button fx:id="btnSubmissionFolder" layoutX="500.0" layoutY="175.0" mnemonicParsing="false" onAction="#getSubmissionFolder" prefHeight="25.0" prefWidth="81.0" text="File Explorer" />
+            <Label layoutX="20.0" layoutY="220.0" text="Result Folder:" />
+            <TextField fx:id="txtfieldResultFolder" layoutX="140.0" layoutY="215.0" prefHeight="25.0" prefWidth="350.0" />
+            <Button fx:id="btnresultFolder" layoutX="500.0" layoutY="215.0" mnemonicParsing="false" onAction="#getResultFolder" prefHeight="25.0" prefWidth="81.0" text="File Explorer" />
       </children>
     </AnchorPane>
   </children>
