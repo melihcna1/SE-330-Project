@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="378.0" prefWidth="595.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.ProjectScreen">
+  <children>
+    <AnchorPane prefHeight="395.0" prefWidth="595.0" VBox.vgrow="ALWAYS">
+      <children>
+            <Label layoutX="20.0" layoutY="20.0" text="Project Name:" />
+            <TextField fx:id="txtfieldProjectName" layoutX="140.0" layoutY="15.0" prefHeight="25.0" prefWidth="350.0" />
+            <Label layoutX="20.0" layoutY="60.0" text="Configuration:" />
+            <TextField fx:id="txtfieldConfiguration" layoutX="140.0" layoutY="55.0" prefHeight="25.0" prefWidth="350.0" />
+            <Button fx:id="btnConfiguration" layoutX="500.0" layoutY="55.0" mnemonicParsing="false" onAction="#getConfiguration" prefHeight="25.0" prefWidth="81.0" text="File Explorer" />
+            <Button fx:id="btnSaveProject" layoutX="450.0" layoutY="322.0" mnemonicParsing="false" onAction="#saveProject" text="SAVE" />
+            <Label layoutX="20.0" layoutY="100.0" text="Input File:" />
+            <TextField fx:id="txtfieldInputFile" layoutX="140.0" layoutY="95.0" prefHeight="25.0" prefWidth="350.0" />
+            <Button fx:id="btnInputFile" layoutX="500.0" layoutY="95.0" mnemonicParsing="false" onAction="#getInputFile" prefHeight="25.0" prefWidth="81.0" text="File Explorer" />
+            <Label layoutX="20.0" layoutY="140.0" text="Expected Output File:" />
+            <TextField fx:id="txtfieldexpectedOutputFile" layoutX="140.0" layoutY="135.0" prefHeight="25.0" prefWidth="350.0" />
+            <Button fx:id="btnExpectedOutputFile" layoutX="500.0" layoutY="135.0" mnemonicParsing="false" onAction="#getExpectedOutputFile" prefHeight="25.0" prefWidth="81.0" text="File Explorer" />
+            <Label layoutX="20.0" layoutY="180.0" text="Submission Folder:" />
+            <TextField fx:id="txtfieldSubmissionFolder" layoutX="140.0" layoutY="175.0" prefHeight="25.0" prefWidth="350.0" />
+            <Button fx:id="btnSubmissionFolder" layoutX="500.0" layoutY="175.0" mnemonicParsing="false" onAction="#getSubmissionFolder" prefHeight="25.0" prefWidth="81.0" text="File Explorer" />
+      </children>
+    </AnchorPane>
+  </children>
+</VBox>
