@@ -6,33 +6,30 @@ import java.util.List;
  * Holds compile/run parameters and test-case definitions.
  */
 public class Configuration {
-    private String language;
-    private List<ToolSpec> tools;
-    private List<TestCase> testCases;  // inputFile & expectedOutputFile
+    private String name;
+    private ToolSpec tool;
 
-    public String getLanguage() {
-        return language;
+    public Configuration(String name, ToolSpec tool) {
+        this.name = name;
+        this.tool = tool;
     }
 
-    public void setLanguage(String language) {
-        this.language = language;
+    public String getName() {
+        return name;
     }
 
-    public List<ToolSpec> getTools() {
-        return tools;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public void setTools(List<ToolSpec> tools) {
-        this.tools = tools;
+    public ToolSpec getTools() {
+        return tool;
     }
 
-    public List<TestCase> getTestCases() {
-        return testCases;
+    public void setTools(ToolSpec tool) {
+        this.tool = tool;
     }
 
-    public void setTestCases(List<TestCase> testCases) {
-        this.testCases = testCases;
-    }
 
     public String getRunCmd() {
         // TODO Auto-generated method stub
@@ -46,23 +43,4 @@ public class Configuration {
 
 }
 
-class TestCase {
-    private String inputFile;
-    private String expectedOutputFile;
 
-    public String getInputFile() {
-        return inputFile;
-    }
-
-    public void setInputFile(String inputFile) {
-        this.inputFile = inputFile;
-    }
-
-    public String getExpectedOutputFile() {
-        return expectedOutputFile;
-    }
-
-    public void setExpectedOutputFile(String expectedOutputFile) {
-        this.expectedOutputFile = expectedOutputFile;
-    }
-}
