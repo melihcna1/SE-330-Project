@@ -116,6 +116,12 @@ public class ProjectScreen extends Application {
             showAlert("SUBMISSION FOLDER IS EMPTY", "Please Enter the Submission Folder.");
 
         } else {
+            try {
+                new File("src/PROJECTS").mkdirs();
+            } catch (Exception e) {
+               e.printStackTrace();
+            }
+
 
             try {
                 String s = "src/PROJECTS/";

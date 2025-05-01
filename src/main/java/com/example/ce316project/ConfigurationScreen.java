@@ -113,7 +113,11 @@ public class ConfigurationScreen extends Application {
         } else if (txtfieldCompilerArguments.getText().isBlank() && choiceboxToolType.getValue().equals("COMPILER")) {
             showAlert("COMPILER ARGUMENTS IS EMPTY", "Please Enter the Compiler Arguments.");
         } else {
-
+            try {
+                new File("src/CONFIGURATIONS").mkdirs();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             try {
                 String s = "src/CONFIGURATIONS/";
                 s += txtfieldConfigurationName.getText() + ".json";
