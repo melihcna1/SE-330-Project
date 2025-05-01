@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
@@ -14,13 +13,17 @@
                         <MenuItem mnemonicParsing="false" onAction="#handleNewProject" text="New Project..." />
                         <MenuItem mnemonicParsing="false" onAction="#handleOpenProject" text="Open Project..." />
                         <MenuItem mnemonicParsing="false" onAction="#handleSaveProject" text="Save" />
-                        <MenuItem mnemonicParsing="false" onAction="#handleSaveProjectAs" text="Save As..." /> <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
+                        <MenuItem mnemonicParsing="false" onAction="#handleSaveProjectAs" text="Save As..." />
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportToCSV" text="Export to CSV..." /> <!-- اضافه شده -->
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportToHTML" text="Export to HTML..." /> <!-- اضافه شده -->
+                        <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
                     </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Run"> <items>
-                    <MenuItem mnemonicParsing="false" onAction="#handleRunBatch" text="Run Batch..." />
-                    <MenuItem mnemonicParsing="false" onAction="#handleManageConfigurations" text="Manage Configurations..." />
-                </items>
+                <Menu mnemonicParsing="false" text="Run">
+                    <items>
+                        <MenuItem mnemonicParsing="false" onAction="#handleRunBatch" text="Run Batch..." />
+                        <MenuItem mnemonicParsing="false" onAction="#handleManageConfigurations" text="Manage Configurations..." />
+                    </items>
                 </Menu>
                 <Menu mnemonicParsing="false" text="Help">
                     <items>

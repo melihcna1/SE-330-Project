@@ -1,32 +1,47 @@
 package com.example.ce316project;
 
-
-import com.example.ce316project.MainApp;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
-import com.example.ce316project.Project;
- import com.example.ce316project.ConfigurationIO;
 import javafx.stage.Stage;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainController {
 
     @FXML
-    private BorderPane mainPane; // Reference to the main container
+    private BorderPane mainPane;
 
     private MainApp mainApp;
-    // private Project currentProject;
+    private Project currentProject;
 
-    // Called by MainApp to give a reference back to itself
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
-        // Initialize things that depend on mainApp or primaryStage if needed
+        initializeNewProject(new File("sample/config"), new File("sample/submissions"));
+        showDetailedResults();
+    }
+
+    public Project getCurrentProject() {
+        return currentProject;
+    }
+
+    public void setCurrentProject(Project project) {
+        this.currentProject = project;
+    }
+
+    public void showMainView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/main-view.fxml"));
+            mainPane.getScene().setRoot(loader.load());
+        } catch (IOException e) {
+            showErrorDialog("Error", "Failed to load main view: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -52,92 +67,106 @@ public class MainController {
         System.out.println("New Project Initialized!");
         System.out.println("Config Dir: " + configDir.getAbsolutePath());
         System.out.println("Submissions Dir: " + submissionsDir.getAbsolutePath());
-
+        this.currentProject = new Project("New Project", configDir.getAbsolutePath(), submissionsDir.getAbsolutePath(), "results", new Project.TestCase("input.txt", "expected_output.txt"));
+        List<StudentResult> sampleResults = new ArrayList<>();
+        sampleResults.add(new StudentResult("S123", "Passed", "No errors", "Program ran successfully", "Output matches", System.currentTimeMillis()));
+        sampleResults.add(new StudentResult("S124", "Failed", "Compile error", "Failed to compile", "No output", System.currentTimeMillis()));
+        currentProject.setResults(sampleResults);
     }
-
 
     @FXML
     private void handleOpenProject() {
-        System.out.println("Open Project clicked");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Project File");
-        // Assuming project files are saved with a specific extension, e.g., .iae_proj
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Project Files", "*.iae_proj"));
         File file = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
         if (file != null) {
             System.out.println("Opening project: " + file.getPath());
-            // TODO: Implement loading project logic using ProjectIO (needs to be created)
-            // loadProject(file);
             showPlaceholderDialog("Open Project", "Load project from: " + file.getName());
         }
     }
 
     @FXML
     private void handleSaveProject() {
-        System.out.println("Save Project clicked");
-        // TODO: Implement saving project logic
-        // if (currentProject != null && currentProject.getProjectPath() != null) {
-        //     saveProject(currentProject.getProjectPath());
-        // } else {
-        //     handleSaveProjectAs(); // If no path exists, force Save As
-        // }
+        if (currentProject == null) {
+            showErrorDialog("Error", "No project is currently open!");
+            return;
+        }
         showPlaceholderDialog("Save Project", "Save current project state here.");
     }
 
     @FXML
     private void handleSaveProjectAs() {
-        System.out.println("Save Project As clicked");
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Project As");
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Project Files", "*.iae_proj"));
         File file = fileChooser.showSaveDialog(mainApp.getPrimaryStage());
         if (file != null) {
-            // Ensure the extension is added if the user didn't type it
             String filePath = file.getPath();
             if (!filePath.endsWith(".iae_proj")) {
                 filePath += ".iae_proj";
             }
             System.out.println("Saving project as: " + filePath);
-            // TODO: Implement saving project logic to the new file path
-            // saveProject(new File(filePath));
             showPlaceholderDialog("Save Project As", "Save project to: " + file.getName());
         }
     }
 
+    @FXML
+    private void handleExportToCSV() {
+        if (currentProject == null || currentProject.getResults() == null || currentProject.getResults().isEmpty()) {
+            showErrorDialog("Error", "No results available to export!");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export Results to CSV");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
+        File file = fileChooser.showSaveDialog(mainApp.getPrimaryStage());
+        if (file != null) {
+            exportResultsToCSV(file);
+        }
+    }
+
+    @FXML
+    private void handleExportToHTML() {
+        if (currentProject == null || currentProject.getResults() == null || currentProject.getResults().isEmpty()) {
+            showErrorDialog("Error", "No results available to export!");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export Results to HTML");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("HTML Files", "*.html"));
+        File file = fileChooser.showSaveDialog(mainApp.getPrimaryStage());
+        if (file != null) {
+            exportResultsToHTML(file);
+        }
+    }
 
     @FXML
     private void handleRunBatch() {
+        if (currentProject == null) {
+            showErrorDialog("Error", "No project is currently open!");
+            return;
+        }
         System.out.println("Run Batch clicked");
-        // TODO: Implement logic to start the batch processing
-        // Needs: currentProject, configuration, submissions directory
-        // Needs to interact with Executor and update UI (Batch Run Progress view)
-        showPlaceholderDialog("Run Batch", "Batch processing should start here.");
+        showDetailedResults();
     }
 
     @FXML
     private void handleManageConfigurations() {
         System.out.println("Manage Configurations clicked");
-        // TODO: Open the Configuration Management view/window
-        // try {
-        //    showConfigurationManager();
-        // } catch (IOException e) {
-        //    showErrorDialog("Error loading configuration manager", e.getMessage());
-        // }
         showPlaceholderDialog("Manage Configurations", "Configuration management window should open here.");
     }
-
 
     @FXML
     private void handleHelpManual() {
         System.out.println("Help Manual clicked");
-        // TODO: Implement opening the help manual (e.g., PDF or HTML file)
-        // Example: Use Desktop.getDesktop().browse(new URI("path/to/manual.html"));
         showPlaceholderDialog("Help", "Help manual should open here.");
     }
 
     @FXML
     private void handleAbout() {
-        System.out.println("About clicked");
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("About IAE");
         alert.setHeaderText("Integrated Assignment Environment");
@@ -145,16 +174,12 @@ public class MainController {
         alert.showAndWait();
     }
 
-
     @FXML
     private void handleExit() {
-        System.out.println("Exit clicked");
-        // Optional: Ask for confirmation if changes are unsaved
         System.exit(0);
     }
 
-    // Helper method for placeholder dialogs
-    private void showPlaceholderDialog(String title, String content) {
+    public void showPlaceholderDialog(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
         alert.setHeaderText(null);
@@ -162,7 +187,6 @@ public class MainController {
         alert.showAndWait();
     }
 
-    // Helper method for error dialogs
     public void showErrorDialog(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
@@ -171,8 +195,47 @@ public class MainController {
         alert.showAndWait();
     }
 
-    // Methods to load different views into the center of the BorderPane would go here
-    // e.g., public void showProjectOverview(Project project) { ... }
-    // e.g., public void showResultsView(List<StudentResult> results) { ... }
+    public void showDetailedResults() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/detailed-result-view.fxml"));
+            mainPane.setCenter(loader.load());
 
+            DetailedResultViewController controller = loader.getController();
+            controller.setMainController(this);
+            controller.setResults(FXCollections.observableArrayList(currentProject.getResults()));
+        } catch (IOException e) {
+            showErrorDialog("Error", "Failed to load detailed result view: " + e.getMessage());
+        }
+    }
+
+    private void exportResultsToCSV(File file) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write("Student ID,Status\n");
+            for (StudentResult result : currentProject.getResults()) {
+                writer.write(String.format("%s,%s\n", result.getStudentId(), result.getStatus()));
+            }
+            showPlaceholderDialog("Success", "Results exported to CSV successfully!");
+        } catch (IOException e) {
+            showErrorDialog("Error", "Failed to export to CSV: " + e.getMessage());
+        }
+    }
+
+    private void exportResultsToHTML(File file) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write("<!DOCTYPE html>\n<html>\n<head>\n");
+            writer.write("<title>Project Results</title>\n");
+            writer.write("<style>table, th, td {border: 1px solid black; border-collapse: collapse; padding: 5px;}</style>\n");
+            writer.write("</head>\n<body>\n");
+            writer.write("<h2>Project Results</h2>\n");
+            writer.write("<table>\n");
+            writer.write("<tr><th>Student ID</th><th>Status</th></tr>\n");
+            for (StudentResult result : currentProject.getResults()) {
+                writer.write(String.format("<tr><td>%s</td><td>%s</td></tr>\n", result.getStudentId(), result.getStatus()));
+            }
+            writer.write("</table>\n</body>\n</html>");
+            showPlaceholderDialog("Success", "Results exported to HTML successfully!");
+        } catch (IOException e) {
+            showErrorDialog("Error", "Failed to export to HTML: " + e.getMessage());
+        }
+    }
 }

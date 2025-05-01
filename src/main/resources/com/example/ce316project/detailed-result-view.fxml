@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.DetailedResultViewController" spacing="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+
+    <TableView fx:id="tableResults" prefHeight="300.0">
+        <columns>
+            <TableColumn fx:id="colStudentId" text="Student ID" prefWidth="150.0"/>
+            <TableColumn fx:id="colStatus" text="Status" prefWidth="100.0"/>
+            <TableColumn fx:id="colActions" text="Actions" prefWidth="200.0"/>
+        </columns>
+    </TableView>
+
+
+    <Label text="Details for Selected Student"/>
+    <TextArea fx:id="txtDetails" prefHeight="150.0" editable="false" wrapText="true"/>
+
+    <HBox spacing="10">
+        <Button fx:id="btnRefresh" text="Refresh" onAction="#refreshResults"/>
+        <Button fx:id="btnBack" text="Back to Main" onAction="#backToMain"/>
+    </HBox>
+</VBox>
