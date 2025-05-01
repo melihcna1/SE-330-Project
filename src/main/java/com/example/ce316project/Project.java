@@ -7,9 +7,16 @@ public class Project {
     private String projectName;
     private String configurationPath;
     private String submissionsDir;
-    private List<TestCase> testCases;  // inputFile & expectedOutputFile
+    private TestCase testCase;  // inputFile & expectedOutputFile
     private List<StudentResult> results;
     private String schemaVersion = "1.0";
+
+    public Project(String projectName, String configurationPath, String submissionsDir, TestCase testCase) {
+        this.projectName = projectName;
+        this.configurationPath = configurationPath;
+        this.submissionsDir = submissionsDir;
+        this.testCase = testCase;
+    }
 
     public String getProjectName() {
         return projectName;
@@ -35,12 +42,12 @@ public class Project {
         this.submissionsDir = submissionsDir;
     }
 
-    public List<TestCase> getTestCases() {
-        return testCases;
+    public TestCase getTestCase() {
+        return testCase;
     }
 
-    public void setTestCases(List<TestCase> testCases) {
-        this.testCases = testCases;
+    public void setTestCase(TestCase testCase) {
+        this.testCase = testCase;
     }
 
     public List<StudentResult> getResults() {
@@ -59,9 +66,14 @@ public class Project {
         this.schemaVersion = schemaVersion;
     }
 
-    class TestCase {
+    static class TestCase {
         private String inputFile;
         private String expectedOutputFile;
+
+        public TestCase(String inputFile, String expectedOutputFile) {
+            this.inputFile = inputFile;
+            this.expectedOutputFile = expectedOutputFile;
+        }
 
         public String getInputFile() {
             return inputFile;
