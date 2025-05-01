@@ -121,7 +121,7 @@ public class ConfigurationScreen extends Application {
                 File configurationFile = Files.createFile(path).toFile();
 
                 ToolSpec tool = new ToolSpec(ToolType.COMPILER, txtfieldRunCall.getText(), txtfieldCompilerArguments.getText());
-                Configuration config = new Configuration(txtfieldConfigurationName.getText(), tool);
+                Configuration config = new Configuration(txtfieldConfigurationName.getText(), txtfieldLanguage.getText(), tool);
                 ConfigurationIO.save(config, path);
             } catch (FileAlreadyExistsException e) {
                 showAlert("FILE ALREADY EXISTS", "Please Enter a different name or delete the other file.");

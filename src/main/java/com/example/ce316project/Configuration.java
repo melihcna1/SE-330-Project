@@ -7,11 +7,13 @@ import java.util.List;
  */
 public class Configuration {
     private String name;
+    private String language;
     private ToolSpec tool;
 
-    public Configuration(String name, ToolSpec tool) {
+    public Configuration(String name, String language, ToolSpec tool) {
         this.name = name;
         this.tool = tool;
+        this.language = language;
     }
 
     public String getName() {
