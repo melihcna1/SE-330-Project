@@ -3,13 +3,17 @@ package com.example.ce316project;
 
 import com.example.ce316project.MainApp;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
-// import com.example.ce316project.Project; // Import Project class
-// import com.example.ce316project.ConfigurationIO; // etc.
+import com.example.ce316project.Project;
+ import com.example.ce316project.ConfigurationIO;
+import javafx.stage.Stage;
 
 import java.io.File;
+import java.io.IOException;
 
 public class MainController {
 
@@ -27,16 +31,30 @@ public class MainController {
 
     @FXML
     private void handleNewProject() {
-        System.out.println("New Project clicked");
-        // TODO: Implement project creation logic (maybe open the wizard?)
-        // Example: Show the Project Setup Wizard
-        // try {
-        //     showProjectSetupWizard();
-        // } catch (IOException e) {
-        //     showErrorDialog("Error loading wizard", e.getMessage());
-        // }
-        showPlaceholderDialog("New Project", "Project creation wizard should open here.");
+        try {
+            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/com/example/ce316project/project-setup-view.fxml"));
+            Stage dialogStage = new Stage();
+            dialogStage.setTitle("New Project Setup");
+            dialogStage.initOwner(mainApp.getPrimaryStage());
+            dialogStage.setScene(new Scene(loader.load()));
+
+            ProjectSetupController controller = loader.getController();
+            controller.setDialogStage(dialogStage);
+            controller.setMainController(this);
+
+            dialogStage.showAndWait();
+        } catch (IOException e) {
+            showErrorDialog("Error", "Failed to open project setup wizard: " + e.getMessage());
+        }
     }
+
+    public void initializeNewProject(File configDir, File submissionsDir) {
+        System.out.println("New Project Initialized!");
+        System.out.println("Config Dir: " + configDir.getAbsolutePath());
+        System.out.println("Submissions Dir: " + submissionsDir.getAbsolutePath());
+
+    }
+
 
     @FXML
     private void handleOpenProject() {
@@ -145,7 +163,7 @@ public class MainController {
     }
 
     // Helper method for error dialogs
-    private void showErrorDialog(String title, String content) {
+    public void showErrorDialog(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
         alert.setHeaderText(title);

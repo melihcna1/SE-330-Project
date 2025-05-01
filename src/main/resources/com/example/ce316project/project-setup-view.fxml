@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+
+<GridPane fx:id="setupPane" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.ProjectSetupController"
+          hgap="10" vgap="10" padding="20">
+    <Label text="Configuration Directory:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+    <TextField fx:id="configDirField" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+    <Button text="Browse..." onAction="#handleBrowseConfig" GridPane.rowIndex="0" GridPane.columnIndex="2"/>
+
+    <Label text="Submissions Directory:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+    <TextField fx:id="submissionsDirField" editable="false" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+    <Button text="Browse..." onAction="#handleBrowseSubmissions" GridPane.rowIndex="1" GridPane.columnIndex="2"/>
+
+    <Button text="Start Project" onAction="#handleStartProject" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+</GridPane>
