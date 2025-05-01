@@ -127,6 +127,9 @@ public class ProjectScreen extends Application {
         } else if (txtfieldSubmissionFolder.getText().isBlank()) {
             showAlert("SUBMISSION FOLDER IS EMPTY", "Please Enter the Submission Folder.");
 
+        } else if (txtfieldResultFolder.getText().isBlank()) {
+            showAlert("RESULT FOLDER IS EMPTY", "Please Enter the Result Folder.");
+
         } else {
             try {
                 new File("src/PROJECTS").mkdirs();
