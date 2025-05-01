@@ -22,7 +22,7 @@ public class ToolValidator {
         // build command: [executable] + versionArgs
         ArrayList<String> cmd = new ArrayList<>();
         cmd.add(spec.getExecutable());
-        cmd.addAll(spec.getVersionArgs());
+
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.redirectErrorStream(true);
