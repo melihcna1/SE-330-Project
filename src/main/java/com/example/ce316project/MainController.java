@@ -10,6 +10,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -71,21 +72,21 @@ public class MainController {
         }
     }
 
-    public void initializeNewProject(File configDir, File submissionsDir) {
-        System.out.println("New Project Initialized!");
-        System.out.println("Config Dir: " + configDir.getAbsolutePath());
-        System.out.println("Submissions Dir: " + submissionsDir.getAbsolutePath());
-        this.currentProject = new Project("New Project", configDir.getAbsolutePath(), submissionsDir.getAbsolutePath(), "results", new Project.TestCase("input.txt", "expected_output.txt"));
-        List<StudentResult> sampleResults = new ArrayList<>();
-        sampleResults.add(new StudentResult("S123", "Passed", "No errors", "Program ran successfully", "Output matches", System.currentTimeMillis()));
-        sampleResults.add(new StudentResult("S124", "Failed", "Compile error", "Failed to compile", "No output", System.currentTimeMillis()));
-        currentProject.setResults(sampleResults);
-
-        List<Configuration> sampleConfigs = new ArrayList<>();
-        sampleConfigs.add(new Configuration("JavaConfig", "Java", new ToolSpec(ToolType.COMPILER, "javac", "-d"), ToolType.COMPILER));
-        sampleConfigs.add(new Configuration("PythonConfig", "Python", new ToolSpec(ToolType.INTERPRETER, "python", Arrays.asList("-t")), ToolType.INTERPRETER));
-        currentProject.setConfigurations(sampleConfigs);
-    }
+//    public void initializeNewProject(File configDir, File submissionsDir) {
+//        System.out.println("New Project Initialized!");
+//        System.out.println("Config Dir: " + configDir.getAbsolutePath());
+//        System.out.println("Submissions Dir: " + submissionsDir.getAbsolutePath());
+//        this.currentProject = new Project("New Project", configDir.getAbsolutePath(), submissionsDir.getAbsolutePath(), "results", new Project.TestCase("input.txt", "expected_output.txt"));
+//        List<StudentResult> sampleResults = new ArrayList<>();
+//        sampleResults.add(new StudentResult("S123", "Passed", "No errors", "Program ran successfully", "Output matches", System.currentTimeMillis()));
+//        sampleResults.add(new StudentResult("S124", "Failed", "Compile error", "Failed to compile", "No output", System.currentTimeMillis()));
+//        currentProject.setResults(sampleResults);
+//
+//        List<Configuration> sampleConfigs = new ArrayList<>();
+//        sampleConfigs.add(new Configuration("JavaConfig", "Java", new ToolSpec(ToolType.COMPILER, "javac", "-d"), ToolType.COMPILER));
+//        sampleConfigs.add(new Configuration("PythonConfig", "Python", new ToolSpec(ToolType.INTERPRETER, "python", Arrays.asList("-t")), ToolType.INTERPRETER));
+//        currentProject.setConfigurations(sampleConfigs);
+//    }
 
     @FXML
     private void handleNewConfiguration() throws IOException {
@@ -96,9 +97,58 @@ public class MainController {
         dialogStage.setScene(new Scene(loader.load()));
 
         ConfigurationScreen controller = loader.getController();
+       // controller.mode = "CREATE";
         controller.thisStage = dialogStage;
         //    controller.setMainController(this);
         dialogStage.showAndWait();
+    }
+
+    @FXML
+    private void handleEditConfiguration() throws IOException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setInitialDirectory(new File("src/CONFIGURATIONS"));
+        fileChooser.setTitle("Edit Configuration File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Configuration Files", "*.json"));
+        File file = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
+
+        if (file != null) {
+            System.out.println("Opening Configuration: " + file.getPath());
+            try {
+                Configuration configuration = ConfigurationIO.load(Path.of(file.getPath()));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/ConfigurationScreen.fxml"));
+                Stage dialogStage = new Stage();
+                dialogStage.setTitle("Edit Configuration");
+                dialogStage.initOwner(mainApp.getPrimaryStage());
+                dialogStage.setScene(new Scene(loader.load()));
+
+                ConfigurationScreen controller = loader.getController();
+
+                controller.configuration = configuration;
+                controller.thisStage = dialogStage;
+                //    controller.setMainController(this);
+                dialogStage.showAndWait();
+            } catch (ConfigurationIO.InvalidFormatException e) {
+                System.err.println("Could not open Configuration File");
+            }
+        }
+
+
+    }
+
+    @FXML
+    private void handleDeleteConfiguration() throws IOException {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Delete Configuration File");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Configuration Files", "*.json"));
+        File file = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
+        if (file != null) {
+            System.out.println("Deleting Configuration: " + file.getPath());
+            if (file.delete()) {
+                System.out.println("File deleted successfully");
+            } else {
+                System.out.println("Failed to delete the file");
+            }
+        }
     }
 
 

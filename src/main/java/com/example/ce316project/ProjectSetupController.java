@@ -54,27 +54,27 @@ public class ProjectSetupController {
         }
     }
 
-    @FXML
-    private void createProject() {
-        String configDirPath = txtConfigDir.getText();
-        String submissionsDirPath = txtSubmissionsDir.getText();
-
-        if (configDirPath.isEmpty() || submissionsDirPath.isEmpty()) {
-            mainController.showErrorDialog("Error", "Please select both configuration and submissions directories!");
-            return;
-        }
-
-        File configDir = new File(configDirPath);
-        File submissionsDir = new File(submissionsDirPath);
-
-        if (!configDir.exists() || !configDir.isDirectory() || !submissionsDir.exists() || !submissionsDir.isDirectory()) {
-            mainController.showErrorDialog("Error", "Invalid directories selected!");
-            return;
-        }
-
-        mainController.initializeNewProject(configDir, submissionsDir);
-        dialogStage.close();
-    }
+//    @FXML
+//    private void createProject() {
+//        String configDirPath = txtConfigDir.getText();
+//        String submissionsDirPath = txtSubmissionsDir.getText();
+//
+//        if (configDirPath.isEmpty() || submissionsDirPath.isEmpty()) {
+//            mainController.showErrorDialog("Error", "Please select both configuration and submissions directories!");
+//            return;
+//        }
+//
+//        File configDir = new File(configDirPath);
+//        File submissionsDir = new File(submissionsDirPath);
+//
+//        if (!configDir.exists() || !configDir.isDirectory() || !submissionsDir.exists() || !submissionsDir.isDirectory()) {
+//            mainController.showErrorDialog("Error", "Invalid directories selected!");
+//            return;
+//        }
+//
+//        mainController.initializeNewProject(configDir, submissionsDir);
+//        dialogStage.close();
+//    }
 
     @FXML
     private void cancel() {

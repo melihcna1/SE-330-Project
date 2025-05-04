@@ -1,9 +1,6 @@
 package com.example.ce316project;
 
-import javafx.application.Application;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
@@ -18,7 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class ConfigurationScreen {
+public class ConfigurationScreenEdit {
 
     Stage thisStage;
 
@@ -33,14 +30,14 @@ public class ConfigurationScreen {
     @FXML
     public void initialize() {
 
-        choiceboxToolType.setValue("");
-        choiceboxToolType.getItems().addAll(ToolType.COMPILER.toString(), ToolType.INTERPRETER.toString());
-        txtfieldToolLocation.setDisable(true);
-        txtfieldCompilerArguments.setDisable(true);
-        txtfieldRunCall.setDisable(true);
-        btnToolLocation.setDisable(false);
+            txtfieldConfigurationName.setText(configuration.getName());
+            txtfieldLanguage.setText(configuration.getLanguage());
+            choiceboxToolType.setValue(configuration.getTools().getType().toString());
+            txtfieldToolLocation.setText(configuration.getTools().getLocation());
+            txtfieldRunCall.setText(configuration.getRunCmd());
+            txtfieldCompilerArguments.setText(configuration.getCompileCmd());
 
-        choiceboxSelect();
+            choiceboxSelect();
 
 
     }

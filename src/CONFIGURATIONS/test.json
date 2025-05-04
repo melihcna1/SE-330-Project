@@ -1,0 +1,1 @@
+{"schemaVersion":"1.0","payload":{"name":"test","language":"C Language","tool":{"type":"COMPILER","executable":"gcc hello.c -o hello","compilerArgs":"hello.exe","location":"C:\\MinGW\\bin\\gcc.exe"}}}

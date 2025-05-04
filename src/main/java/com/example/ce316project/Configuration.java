@@ -15,11 +15,13 @@ public class Configuration {
         this.tool = tool;
         this.toolType = toolType;
     }
-
-
     public Configuration(String name, String language, ToolSpec tool) {
-        this(name, language, tool, tool != null ? tool.getType() : ToolType.COMPILER);
+        this.name = name;
+        this.language = language;
+        this.tool = tool;
     }
+
+
 
     public String getName() {
         return name;

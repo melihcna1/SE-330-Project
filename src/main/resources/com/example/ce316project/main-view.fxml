@@ -19,6 +19,8 @@
                         <MenuItem mnemonicParsing="false" onAction="#handleNewProject" text="New Project..." />
                         <MenuItem mnemonicParsing="false" onAction="#handleOpenProject" text="Open Project..." />
                   <MenuItem mnemonicParsing="false" onAction="#handleNewConfiguration" text="New Configuration..." />
+                  <MenuItem mnemonicParsing="false" onAction="#handleEditConfiguration" text="Edit Configurations..." />
+                  <MenuItem mnemonicParsing="false" onAction="#handleDeleteConfiguration" text="Delete Configurations..." />
                         <MenuItem mnemonicParsing="false" onAction="#handleSaveProject" text="Save" />
                         <MenuItem mnemonicParsing="false" onAction="#handleSaveProjectAs" text="Save As..." />
                         <MenuItem mnemonicParsing="false" onAction="#handleExportToCSV" text="Export to CSV..." />

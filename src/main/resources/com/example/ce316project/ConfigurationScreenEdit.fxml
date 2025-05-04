@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.ConfigurationScreenEdit" spacing="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <Label text="Configuration Name"/>
+    <TextField fx:id="txtfieldConfigurationName"/>
+
+    <Label text="Language"/>
+    <TextField fx:id="txtfieldLanguage"/>
+
+    <Label text="Tool Type"/>
+    <ChoiceBox fx:id="choiceboxToolType" prefWidth="200.0"/>
+
+    <Label text="Tool Location"/>
+    <HBox spacing="5">
+        <TextField fx:id="txtfieldToolLocation"/>
+        <Button fx:id="btnToolLocation" text="Browse" onAction="#getToolLocation"/>
+    </HBox>
+
+    <Label text="Run Call"/>
+    <TextField fx:id="txtfieldRunCall"/>
+
+    <Label text="Compiler Arguments"/>
+    <TextField fx:id="txtfieldCompilerArguments"/>
+
+    <Button fx:id="btnSaveConfiguration" text="Save Configuration" onAction="#saveConfiguration"/>
+</VBox>
