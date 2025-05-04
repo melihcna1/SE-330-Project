@@ -29,7 +29,7 @@ public class Executor {
     public StudentResult[] run(String solution) throws FileNotFoundException, InterruptedException {
         StudentResult[] results = new StudentResult[files.length];
         if (c.getCompileCmd()!=null) {
-            execute(c.getCompileCmd(),"compoile");
+            execute(c.getCompileCmd(),"compile");
         }
         for (int i=0;i<p.length;i++) {
             p.wait();

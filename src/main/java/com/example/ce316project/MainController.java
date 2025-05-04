@@ -51,15 +51,15 @@ public class MainController {
     @FXML
     private void handleNewProject() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/project-setup-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/ProjectScreen.fxml"));
             Stage dialogStage = new Stage();
             dialogStage.setTitle("New Project Setup");
             dialogStage.initOwner(mainApp.getPrimaryStage());
             dialogStage.setScene(new Scene(loader.load()));
 
-            ProjectSetupController controller = loader.getController();
-            controller.setDialogStage(dialogStage);
-            controller.setMainController(this);
+            ProjectScreen controller = loader.getController();
+            controller.thisStage = dialogStage;
+            //    controller.setMainController(this);
 
             dialogStage.showAndWait();
 
@@ -88,10 +88,25 @@ public class MainController {
     }
 
     @FXML
+    private void handleNewConfiguration() throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/ConfigurationScreen.fxml"));
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("New Configuration");
+        dialogStage.initOwner(mainApp.getPrimaryStage());
+        dialogStage.setScene(new Scene(loader.load()));
+
+        ConfigurationScreen controller = loader.getController();
+        controller.thisStage = dialogStage;
+        //    controller.setMainController(this);
+        dialogStage.showAndWait();
+    }
+
+
+    @FXML
     private void handleOpenProject() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Project File");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Project Files", "*.iae_proj"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Project Files", "*.json"));
         File file = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
         if (file != null) {
             System.out.println("Opening project: " + file.getPath());
@@ -112,7 +127,7 @@ public class MainController {
     private void handleSaveProjectAs() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save Project As");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Project Files", "*.iae_proj"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Project Files", "*.json"));
         File file = fileChooser.showSaveDialog(mainApp.getPrimaryStage());
         if (file != null) {
             String filePath = file.getPath();

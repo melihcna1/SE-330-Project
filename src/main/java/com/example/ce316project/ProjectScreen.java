@@ -20,7 +20,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 
-public class ProjectScreen extends Application {
+public class ProjectScreen {
 
     Stage thisStage;
 
@@ -29,19 +29,7 @@ public class ProjectScreen extends Application {
     public TextField txtfieldProjectName, txtfieldConfiguration, txtfieldInputFile, txtfieldexpectedOutputFile, txtfieldSubmissionFolder, txtfieldResultFolder;
     public Button btnConfiguration, btnInputFile, btnExpectedOutputFile, btnSubmissionFolder, btnResultFolder, btnSaveProject;
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        try {
 
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ProjectScreen.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 600, 400);
-            stage.setScene(scene);
-            thisStage = stage;
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     @FXML
     public void initialize() {
@@ -167,9 +155,7 @@ public class ProjectScreen extends Application {
     }
 
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+
 }
 
 

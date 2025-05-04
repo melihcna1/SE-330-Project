@@ -18,7 +18,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class ConfigurationScreen extends Application {
+public class ConfigurationScreen {
 
     Stage thisStage;
 
@@ -27,18 +27,7 @@ public class ConfigurationScreen extends Application {
     public ChoiceBox<ToolType> choiceboxToolType;
     public Button btnSaveConfiguration, btnToolLocation;
 
-    @Override
-    public void start(Stage stage) throws Exception {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("ConfigurationScreen.fxml"));
-            Scene scene = new Scene(fxmlLoader.load(), 600, 400);
-            stage.setScene(scene);
-            thisStage = stage;
-            stage.show();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     @FXML
     public void initialize() {
@@ -138,7 +127,5 @@ public class ConfigurationScreen extends Application {
         alert.showAndWait();
     }
 
-    public static void main(String[] args) {
-        launch(args);
-    }
+
 }
