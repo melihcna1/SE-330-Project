@@ -36,10 +36,11 @@ public class ConfigurationScreenEdit {
 
         txtfieldConfigurationName.setText(configuration.getName());
         txtfieldLanguage.setText(configuration.getLanguage());
+        choiceboxToolType.getItems().addAll(ToolType.COMPILER.toString(), ToolType.INTERPRETER.toString());
         choiceboxToolType.setValue(configuration.getTools().getType().toString());
         txtfieldToolLocation.setText(configuration.getTools().getLocation());
-        txtfieldRunCall.setText(configuration.getRunCmd());
-        txtfieldCompilerArguments.setText(configuration.getCompileCmd());
+        txtfieldRunCall.setText(configuration.getRunCall());
+        txtfieldCompilerArguments.setText(configuration.getCompilerArguments());
 
         choiceboxSelect();
 
@@ -64,6 +65,7 @@ public class ConfigurationScreenEdit {
     private void choiceboxSelect() {
 
         choiceboxToolType.setOnAction(event -> {
+
             txtfieldRunCall.setDisable(false);
             txtfieldToolLocation.setDisable(false);
             btnToolLocation.setDisable(false);
@@ -104,6 +106,8 @@ public class ConfigurationScreenEdit {
                 String s = "src/CONFIGURATIONS/";
                 s += txtfieldConfigurationName.getText() + ".json";
                 Path path = Paths.get(s);
+                Files.delete(path);
+
                 File configurationFile = Files.createFile(path).toFile();
 
                 ToolSpec tool = new ToolSpec(

@@ -115,13 +115,14 @@ public class MainController {
             System.out.println("Opening Configuration: " + file.getPath());
             try {
                 Configuration configuration = ConfigurationIO.load(Path.of(file.getPath()));
+
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/ConfigurationScreenEdit.fxml"));
                 Stage dialogStage = new Stage();
                 dialogStage.setTitle("Edit Configuration");
                 dialogStage.initOwner(mainApp.getPrimaryStage());
 
-                System.out.println(configuration.getCompileCmd());
-                System.out.println(configuration.getRunCmd());
+              //  System.out.println(configuration.getCompileCmd());
+              //  System.out.println(configuration.getRunCmd());
 
                 ConfigurationScreenEdit controller = new ConfigurationScreenEdit(configuration);
                 loader.setController(controller);

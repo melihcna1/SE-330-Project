@@ -20,7 +20,12 @@ public class Configuration {
         this.language = language;
         this.tool = tool;
     }
-
+    public Configuration(String name, String language, String toolType, String executable,String compilerArgs,String location){
+        this.name = name;
+        this.language=language;
+        this.toolType=ToolType.valueOf(toolType);
+        this.tool=new ToolSpec(ToolType.valueOf(toolType),executable,compilerArgs,location);
+    }
 
 
     public String getName() {
@@ -60,6 +65,15 @@ public class Configuration {
         }
         return null;
     }
+
+    public String getRunCall(){
+        return tool.getExecutable();
+    }
+    public String getCompilerArguments(){
+        return tool.getCompilerArgs();
+    }
+
+
 
     @Override
     public String toString() {
