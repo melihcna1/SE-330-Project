@@ -104,17 +104,20 @@ public class ConfigurationScreen {
                 s += txtfieldConfigurationName.getText() + ".json";
                 Path path = Paths.get(s);
                 File configurationFile = Files.createFile(path).toFile();
-
-                ToolSpec tool = new ToolSpec(
+//
+//                ToolSpec tool = new ToolSpec(
+//                        choiceboxToolType.getValue(),
+//                        txtfieldRunCall.getText(),
+//                        txtfieldCompilerArguments.getText(),
+//                        txtfieldToolLocation.getText()
+//                );
+                Configuration config = new Configuration(
+                        txtfieldConfigurationName.getText(),
+                        txtfieldLanguage.getText(),
                         choiceboxToolType.getValue(),
                         txtfieldRunCall.getText(),
                         txtfieldCompilerArguments.getText(),
                         txtfieldToolLocation.getText()
-                );
-                Configuration config = new Configuration(
-                        txtfieldConfigurationName.getText(),
-                        txtfieldLanguage.getText(),
-                        tool
                 );
                 ConfigurationIO.save(config, path);
             } catch (FileAlreadyExistsException e) {

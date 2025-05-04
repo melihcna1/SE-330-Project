@@ -1,33 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.geometry.Insets?>
 
-<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1"  spacing="10">
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/23.0.1" xmlns:fx="http://javafx.com/fxml/1">
     <padding>
-        <Insets top="10" right="10" bottom="10" left="10"/>
+        <Insets bottom="10" left="10" right="10" top="10" />
     </padding>
 
-    <Label text="Configuration Name"/>
-    <TextField fx:id="txtfieldConfigurationName"/>
+    <Label text="Configuration Name" />
+    <TextField fx:id="txtfieldConfigurationName" />
 
-    <Label text="Language"/>
-    <TextField fx:id="txtfieldLanguage"/>
+    <Label text="Language" />
+    <TextField fx:id="txtfieldLanguage" />
 
-    <Label text="Tool Type"/>
-    <ChoiceBox fx:id="choiceboxToolType" prefWidth="200.0"/>
+    <Label text="Tool Type" />
+    <ChoiceBox fx:id="choiceboxToolType" onMousePressed="#choiceboxSelect" prefWidth="200.0" />
 
-    <Label text="Tool Location"/>
+    <Label text="Tool Location" />
     <HBox spacing="5">
-        <TextField fx:id="txtfieldToolLocation"/>
-        <Button fx:id="btnToolLocation" text="Browse" onAction="#getToolLocation"/>
+        <TextField fx:id="txtfieldToolLocation" />
+        <Button fx:id="btnToolLocation" onAction="#getToolLocation" text="Browse" />
     </HBox>
 
-    <Label text="Run Call"/>
-    <TextField fx:id="txtfieldRunCall"/>
+    <Label text="Run Call" />
+    <TextField fx:id="txtfieldRunCall" />
 
-    <Label text="Compiler Arguments"/>
-    <TextField fx:id="txtfieldCompilerArguments"/>
+    <Label text="Compiler Arguments" />
+    <TextField fx:id="txtfieldCompilerArguments" />
 
-    <Button fx:id="btnSaveConfiguration" text="Save Configuration" onAction="#saveConfiguration"/>
+    <Button fx:id="btnSaveConfiguration" onAction="#saveConfiguration" text="Save Configuration" />
 </VBox>
