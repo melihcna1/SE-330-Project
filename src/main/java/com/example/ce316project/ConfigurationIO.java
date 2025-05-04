@@ -2,6 +2,9 @@ package com.example.ce316project;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
+
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,18 +26,20 @@ public class ConfigurationIO {
 
     public static Configuration load(Path path) throws IOException, InvalidFormatException {
         String json = Files.readString(path);
-        JsonEnvelope<?> env;
+        Type type = new TypeToken<JsonEnvelope<Configuration>>() {}.getType();
+        JsonEnvelope<Configuration> env;
         try {
-            env = gson.fromJson(json, JsonEnvelope.class);
+            env = gson.fromJson(json, type);
         } catch (JsonSyntaxException e) {
             throw new InvalidFormatException("Invalid JSON", e);
         }
+
         if (!SCHEMA_VERSION.equals(env.schemaVersion)) {
             throw new InvalidFormatException("Expected schema " + SCHEMA_VERSION +
                     " but got " + env.schemaVersion);
         }
-        //noinspection unchecked
-        return (Configuration) env.payload;
+
+        return env.payload;
     }
 
     private static class JsonEnvelope<T> {
