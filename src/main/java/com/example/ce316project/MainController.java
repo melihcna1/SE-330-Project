@@ -159,11 +159,18 @@ public class MainController {
     private void handleOpenProject() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Project File");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Project Files", "*.json"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Project Files", "*.iae_proj"));
         File file = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
         if (file != null) {
-            System.out.println("Opening project: " + file.getPath());
-            showPlaceholderDialog("Open Project", "Load project from: " + file.getName());
+            try {
+                Path path = file.toPath();
+                Project project = ProjectIO.load(path); 
+                setCurrentProject(project);
+                showDetailedResults();
+                showPlaceholderDialog("Success", "Project loaded successfully: " + file.getName());
+            } catch (IOException e) {
+                showErrorDialog("Error", "Failed to load project: " + e.getMessage());
+            }
         }
     }
 
