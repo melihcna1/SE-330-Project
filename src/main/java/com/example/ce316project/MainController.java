@@ -160,7 +160,8 @@ public class MainController {
     private void handleOpenProject() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open Project File");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Project Files", "*.iae_proj"));
+        fileChooser.setInitialDirectory(new File("src/PROJECTS"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Project Files", "*.json"));
         File file = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
         if (file != null) {
             try {
