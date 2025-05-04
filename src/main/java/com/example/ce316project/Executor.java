@@ -1,9 +1,10 @@
 package com.example.ce316project;
 
+import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
-import java.util.Scanner;
+import java.util.BufferedReader;
 
 public class Executor {
     Configuration c;
@@ -17,16 +18,18 @@ public class Executor {
     private void execute(String cmd,String log) {     //runs the operation at addresses with the cmd in configuration and returns all the outputs array. Don't have the time to test it
         ProcessBuilder pb = new ProcessBuilder(cmd);
         for (int i=0;i<files.length;i++) {
-            pb.directory(files[i]);
-            pb.redirectOutput(new File(files[i],log+"Log.txt"));
-            pb.redirectError(new File(files[i],log+"Err.txt"));
-            try {
-                p[i] = pb.start();
-            } catch (IOException ex) {}
+            if (files[i]!=null) {
+                pb.directory(files[i]);
+                pb.redirectOutput(new File(files[i],log+"Log.txt"));
+                pb.redirectError(new File(files[i],log+"Err.txt"));
+                try {
+                    p[i] = pb.start();
+                } catch (IOException ex) {}
+            }
         }
     }
     
-    public StudentResult[] run(String solution) throws FileNotFoundException, InterruptedException {
+    public StudentResult[] run(String solution) throws InterruptedException, IOException {
         StudentResult[] results = new StudentResult[files.length];
         if (c.getCompileCmd()!=null) {
             execute(c.getCompileCmd(),"compile");
@@ -34,7 +37,7 @@ public class Executor {
         for (int i=0;i<p.length;i++) {
             p.wait();
             if (p[i].exitValue()!=0) {
-
+                files[i]=null;
             }
         }
         execute(c.getRunCmd(),"run");
@@ -45,24 +48,25 @@ public class Executor {
                 p[i].wait();
             } catch (InterruptedException ex) {
             }
-            Scanner logScanner = new Scanner(new File(files[i],"runLog.txt"));
-            while (logScanner.hasNext()) {
-                output += logScanner.nextLine();
-            }
-            Scanner errScanner = new Scanner(new File(files[i],"runErr.txt"));
-            while (errScanner.hasNext()) {
-                err += errScanner.nextLine();
+            if (files[i]!=null) {
+                BufferedReader logBufferedReader = new BufferedReader(new FileReader(files[i].getAbsolutePath()+"/runLog.txt"));
+                while (logBufferedReader.ready()) {
+                    output += logBufferedReader.read();
+                }
+                BufferedReader errBufferedReader = new BufferedReader(new FileReader(files[i].getAbsolutePath()+"/runErr.txt"));
+                while (errBufferedReader.ready()) {
+                    err += errBufferedReader.read();
+                }
             }
             results[i] = new StudentResult(files[i].getName(),"",err , output, "", 10);
-            if (solution.isBlank()) {
-                solution = output;
-            }
             if (output==solution) {
                 results[i].setStatus("passed");
             }
             else results[i].setStatus("failed");
         }
         return results;
+
+        
     }
 
 }
