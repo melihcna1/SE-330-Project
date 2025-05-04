@@ -21,6 +21,10 @@ public class ConfigurationScreenEdit {
 
     Configuration configuration;
 
+    public ConfigurationScreenEdit(Configuration configuration) {
+        this.configuration = configuration;
+    }
+
     @FXML
     public TextField txtfieldConfigurationName, txtfieldLanguage, txtfieldToolLocation, txtfieldCompilerArguments, txtfieldRunCall;
     public ChoiceBox<String> choiceboxToolType;
@@ -30,14 +34,14 @@ public class ConfigurationScreenEdit {
     @FXML
     public void initialize() {
 
-            txtfieldConfigurationName.setText(configuration.getName());
-            txtfieldLanguage.setText(configuration.getLanguage());
-            choiceboxToolType.setValue(configuration.getTools().getType().toString());
-            txtfieldToolLocation.setText(configuration.getTools().getLocation());
-            txtfieldRunCall.setText(configuration.getRunCmd());
-            txtfieldCompilerArguments.setText(configuration.getCompileCmd());
+        txtfieldConfigurationName.setText(configuration.getName());
+        txtfieldLanguage.setText(configuration.getLanguage());
+        choiceboxToolType.setValue(configuration.getTools().getType().toString());
+        txtfieldToolLocation.setText(configuration.getTools().getLocation());
+        txtfieldRunCall.setText(configuration.getRunCmd());
+        txtfieldCompilerArguments.setText(configuration.getCompileCmd());
 
-            choiceboxSelect();
+        choiceboxSelect();
 
 
     }

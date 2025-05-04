@@ -115,16 +115,19 @@ public class MainController {
             System.out.println("Opening Configuration: " + file.getPath());
             try {
                 Configuration configuration = ConfigurationIO.load(Path.of(file.getPath()));
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/ConfigurationScreen.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/ConfigurationScreenEdit.fxml"));
                 Stage dialogStage = new Stage();
                 dialogStage.setTitle("Edit Configuration");
                 dialogStage.initOwner(mainApp.getPrimaryStage());
+
+                System.out.println(configuration.getCompileCmd());
+                System.out.println(configuration.getRunCmd());
+
+                ConfigurationScreenEdit controller = new ConfigurationScreenEdit(configuration);
+                loader.setController(controller);
+                controller.thisStage = dialogStage;
                 dialogStage.setScene(new Scene(loader.load()));
 
-                ConfigurationScreen controller = loader.getController();
-
-                controller.configuration = configuration;
-                controller.thisStage = dialogStage;
                 //    controller.setMainController(this);
                 dialogStage.showAndWait();
             } catch (ConfigurationIO.InvalidFormatException e) {
