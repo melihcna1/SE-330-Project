@@ -1,6 +1,6 @@
 package com.example.ce316project;
 
-
+import java.util.ArrayList;
 import java.util.List;
 
 public class Project {
@@ -8,16 +8,19 @@ public class Project {
     private String configurationPath;
     private String submissionsDir;
     private String resultDir;
-    private TestCase testCase;  // inputFile & expectedOutputFile
+    private TestCase testCase;
     private List<StudentResult> results;
+    private List<Configuration> configurations;
     private String schemaVersion = "1.0";
 
     public Project(String projectName, String configurationPath, String submissionsDir, String resultDir, TestCase testCase) {
         this.projectName = projectName;
         this.configurationPath = configurationPath;
         this.submissionsDir = submissionsDir;
-        this.testCase = testCase;
         this.resultDir = resultDir;
+        this.testCase = testCase;
+        this.results = new ArrayList<>();
+        this.configurations = new ArrayList<>();
     }
 
     public String getProjectName() {
@@ -44,6 +47,14 @@ public class Project {
         this.submissionsDir = submissionsDir;
     }
 
+    public String getResultDir() {
+        return resultDir;
+    }
+
+    public void setResultDir(String resultDir) {
+        this.resultDir = resultDir;
+    }
+
     public TestCase getTestCase() {
         return testCase;
     }
@@ -58,6 +69,14 @@ public class Project {
 
     public void setResults(List<StudentResult> results) {
         this.results = results;
+    }
+
+    public List<Configuration> getConfigurations() {
+        return configurations;
+    }
+
+    public void setConfigurations(List<Configuration> configurations) {
+        this.configurations = configurations;
     }
 
     public String getSchemaVersion() {
@@ -93,7 +112,4 @@ public class Project {
             this.expectedOutputFile = expectedOutputFile;
         }
     }
-
-
 }
-

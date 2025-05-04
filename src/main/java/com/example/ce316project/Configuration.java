@@ -1,7 +1,5 @@
 package com.example.ce316project;
 
-import java.util.List;
-
 /**
  * Holds compile/run parameters and test-case definitions.
  */
@@ -9,11 +7,18 @@ public class Configuration {
     private String name;
     private String language;
     private ToolSpec tool;
+    private ToolType toolType;
+
+    public Configuration(String name, String language, ToolSpec tool, ToolType toolType) {
+        this.name = name;
+        this.language = language;
+        this.tool = tool;
+        this.toolType = toolType;
+    }
+
 
     public Configuration(String name, String language, ToolSpec tool) {
-        this.name = name;
-        this.tool = tool;
-        this.language = language;
+        this(name, language, tool, tool != null ? tool.getType() : ToolType.COMPILER);
     }
 
     public String getName() {
@@ -32,17 +37,30 @@ public class Configuration {
         this.tool = tool;
     }
 
+    public String getLanguage() {
+        return language;
+    }
 
-    public String getRunCmd() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getRunCmd'");
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public String getCompileCmd() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getCompileCmd'");
+        if (toolType == ToolType.COMPILER && tool != null) {
+            return tool.getExecutable() + (tool.getCompilerArgs() != null ? " " + tool.getCompilerArgs() : "");
+        }
+        return null;
     }
 
+    public String getRunCmd() {
+        if ((toolType == ToolType.INTERPRETER || toolType == ToolType.CUSTOM) && tool != null) {
+            return tool.getExecutable() + (tool.getTestArgs() != null ? " " + String.join(" ", tool.getTestArgs()) : "");
+        }
+        return null;
+    }
+
+    @Override
+    public String toString() {
+        return name;
+    }
 }
-
-

@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ChoiceBox?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.VBox?>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.ConfigurationScreen" spacing="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
 
-<VBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="378.0" prefWidth="595.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.ConfigurationScreen">
-  <children>
-    <AnchorPane prefHeight="395.0" prefWidth="595.0" VBox.vgrow="ALWAYS">
-      <children>
-            <Label layoutX="20.0" layoutY="20.0" text="Configuration Name:" />
-            <TextField fx:id="txtfieldConfigurationName" layoutX="140.0" layoutY="15.0" prefHeight="25.0" prefWidth="350.0" />
-            <Label layoutX="20.0" layoutY="60.0" text="Language:" />
-            <TextField fx:id="txtfieldLanguage" layoutX="140.0" layoutY="55.0" prefHeight="25.0" prefWidth="350.0" />
-            <Label layoutX="20.0" layoutY="100.0" text="Tool Type:" />
-            <ChoiceBox fx:id="choiceboxToolType" layoutX="140.0" layoutY="95.0" prefHeight="25.0" prefWidth="213.0" />
-            <Label layoutX="20.0" layoutY="140.0" text="Tool Location:" />
-            <TextField fx:id="txtfieldToolLocation" layoutX="140.0" layoutY="135.0" prefHeight="25.0" prefWidth="350.0" />
-            <Button fx:id="btnToolLocation" layoutX="494.0" layoutY="135.0" mnemonicParsing="false" onAction="#getToolLocation" prefHeight="25.0" prefWidth="81.0" text="File Explorer" />
-            <Label layoutX="20.0" layoutY="180.0" text="Compiler Arguments:" />
-            <TextField fx:id="txtfieldCompilerArguments" layoutX="140.0" layoutY="175.0" prefHeight="25.0" prefWidth="350.0" />
-            <Button fx:id="btnSaveConfiguration" layoutX="450.0" layoutY="322.0" mnemonicParsing="false" onAction="#saveConfiguration" text="SAVE" />
-            <Label layoutX="20.0" layoutY="220.0" text="Run Call:" />
-            <TextField fx:id="txtfieldRunCall" layoutX="140.0" layoutY="215.0" prefHeight="25.0" prefWidth="350.0" />
-      </children>
-    </AnchorPane>
-  </children>
+    <Label text="Configuration Name"/>
+    <TextField fx:id="txtfieldConfigurationName"/>
+
+    <Label text="Language"/>
+    <TextField fx:id="txtfieldLanguage"/>
+
+    <Label text="Tool Type"/>
+    <ChoiceBox fx:id="choiceboxToolType" prefWidth="200.0"/>
+
+    <Label text="Tool Location"/>
+    <HBox spacing="5">
+        <TextField fx:id="txtfieldToolLocation"/>
+        <Button fx:id="btnToolLocation" text="Browse" onAction="#getToolLocation"/>
+    </HBox>
+
+    <Label text="Run Call"/>
+    <TextField fx:id="txtfieldRunCall"/>
+
+    <Label text="Compiler Arguments"/>
+    <TextField fx:id="txtfieldCompilerArguments"/>
+
+    <Button fx:id="btnSaveConfiguration" text="Save Configuration" onAction="#saveConfiguration"/>
 </VBox>

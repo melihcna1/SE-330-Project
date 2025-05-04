@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?import javafx.scene.control.Menu?>
-<?import javafx.scene.control.MenuBar?>
-<?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
 
 <BorderPane fx:id="mainPane" prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.MainController">
+
     <top>
         <MenuBar BorderPane.alignment="CENTER">
             <menus>
@@ -14,18 +14,18 @@
                         <MenuItem mnemonicParsing="false" onAction="#handleOpenProject" text="Open Project..." />
                         <MenuItem mnemonicParsing="false" onAction="#handleSaveProject" text="Save" />
                         <MenuItem mnemonicParsing="false" onAction="#handleSaveProjectAs" text="Save As..." />
-                        <MenuItem mnemonicParsing="false" onAction="#handleExportToCSV" text="Export to CSV..." /> <!-- اضافه شده -->
-                        <MenuItem mnemonicParsing="false" onAction="#handleExportToHTML" text="Export to HTML..." /> <!-- اضافه شده -->
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportToCSV" text="Export to CSV..." />
+                        <MenuItem mnemonicParsing="false" onAction="#handleExportToHTML" text="Export to HTML..." />
                         <MenuItem mnemonicParsing="false" onAction="#handleExit" text="Exit" />
                     </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Run">
+                <Menu text="Run">
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#handleRunBatch" text="Run Batch..." />
                         <MenuItem mnemonicParsing="false" onAction="#handleManageConfigurations" text="Manage Configurations..." />
                     </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Help">
+                <Menu text="Help">
                     <items>
                         <MenuItem mnemonicParsing="false" onAction="#handleHelpManual" text="Manual" />
                         <MenuItem mnemonicParsing="false" onAction="#handleAbout" text="About" />
@@ -34,4 +34,17 @@
             </menus>
         </MenuBar>
     </top>
+
+
+    <center>
+        <VBox spacing="10" alignment="CENTER">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <Label text="Welcome to Integrated Assignment Environment" style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+            <Label text="Create or open a project to get started." style="-fx-font-size: 14px;"/>
+            <Button text="New Project" onAction="#handleNewProject"/>
+            <Button text="Open Project" onAction="#handleOpenProject"/>
+        </VBox>
+    </center>
 </BorderPane>

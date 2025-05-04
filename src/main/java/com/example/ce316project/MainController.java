@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MainController {
@@ -23,6 +24,12 @@ public class MainController {
 
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
+
+        showMainView();
+    }
+
+    public MainApp getMainApp() {
+        return mainApp;
     }
 
     public Project getCurrentProject() {
@@ -34,18 +41,17 @@ public class MainController {
     }
 
     public void showMainView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/main-view.fxml"));
-            mainPane.getScene().setRoot(loader.load());
-        } catch (IOException e) {
-            showErrorDialog("Error", "Failed to load main view: " + e.getMessage());
+
+        if (mainPane == null) {
+            throw new IllegalStateException("mainPane is not initialized");
         }
+
     }
 
     @FXML
     private void handleNewProject() {
         try {
-            FXMLLoader loader = new FXMLLoader(MainApp.class.getResource("/com/example/ce316project/project-setup-view.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/project-setup-view.fxml"));
             Stage dialogStage = new Stage();
             dialogStage.setTitle("New Project Setup");
             dialogStage.initOwner(mainApp.getPrimaryStage());
@@ -56,6 +62,10 @@ public class MainController {
             controller.setMainController(this);
 
             dialogStage.showAndWait();
+
+            if (currentProject != null) {
+                showDetailedResults();
+            }
         } catch (IOException e) {
             showErrorDialog("Error", "Failed to open project setup wizard: " + e.getMessage());
         }
@@ -70,7 +80,11 @@ public class MainController {
         sampleResults.add(new StudentResult("S123", "Passed", "No errors", "Program ran successfully", "Output matches", System.currentTimeMillis()));
         sampleResults.add(new StudentResult("S124", "Failed", "Compile error", "Failed to compile", "No output", System.currentTimeMillis()));
         currentProject.setResults(sampleResults);
-        showDetailedResults();
+
+        List<Configuration> sampleConfigs = new ArrayList<>();
+        sampleConfigs.add(new Configuration("JavaConfig", "Java", new ToolSpec(ToolType.COMPILER, "javac", "-d"), ToolType.COMPILER));
+        sampleConfigs.add(new Configuration("PythonConfig", "Python", new ToolSpec(ToolType.INTERPRETER, "python", Arrays.asList("-t")), ToolType.INTERPRETER));
+        currentProject.setConfigurations(sampleConfigs);
     }
 
     @FXML
@@ -149,13 +163,25 @@ public class MainController {
             return;
         }
         System.out.println("Run Batch clicked");
-        showDetailedResults();
+        showBatchRunProgress();
     }
 
     @FXML
     private void handleManageConfigurations() {
-        System.out.println("Manage Configurations clicked");
-        showPlaceholderDialog("Manage Configurations", "Configuration management window should open here.");
+        if (currentProject == null) {
+            showErrorDialog("Error", "No project is currently open!");
+            return;
+        }
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/configuration-management-view.fxml"));
+            mainPane.setCenter(loader.load());
+
+            ConfigManagementController controller = loader.getController();
+            controller.setMainController(this);
+            controller.setConfigurations(FXCollections.observableArrayList(currentProject.getConfigurations()));
+        } catch (IOException e) {
+            showErrorDialog("Error", "Failed to load configuration management view: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -204,6 +230,19 @@ public class MainController {
             controller.setResults(FXCollections.observableArrayList(currentProject.getResults()));
         } catch (IOException e) {
             showErrorDialog("Error", "Failed to load detailed result view: " + e.getMessage());
+        }
+    }
+
+    public void showBatchRunProgress() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/batch-run-progress-view.fxml"));
+            mainPane.setCenter(loader.load());
+
+            BatchRunProgressController controller = loader.getController();
+            controller.setMainController(this);
+            controller.startBatchRun(currentProject.getResults());
+        } catch (IOException e) {
+            showErrorDialog("Error", "Failed to load batch run progress view: " + e.getMessage());
         }
     }
 

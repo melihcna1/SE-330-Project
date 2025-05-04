@@ -1,6 +1,8 @@
 package com.example.ce316project;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -38,11 +40,20 @@ public class ConfigurationIO {
     private static class JsonEnvelope<T> {
         String schemaVersion;
         T payload;
-        JsonEnvelope(String v, T p) { schemaVersion = v; payload = p; }
+
+        JsonEnvelope(String v, T p) {
+            schemaVersion = v;
+            payload = p;
+        }
     }
 
     public static class InvalidFormatException extends Exception {
-        public InvalidFormatException(String msg) { super(msg); }
-        public InvalidFormatException(String msg, Throwable cause) { super(msg, cause); }
+        public InvalidFormatException(String msg) {
+            super(msg);
+        }
+
+        public InvalidFormatException(String msg, Throwable cause) {
+            super(msg, cause);
+        }
     }
 }

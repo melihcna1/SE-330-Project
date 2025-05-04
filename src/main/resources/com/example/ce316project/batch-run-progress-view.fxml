@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.BatchRunProgressController" spacing="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <Label text="Batch Run Progress"/>
+    <TableView fx:id="tableProgress" prefHeight="300.0">
+        <columns>
+            <TableColumn fx:id="colStudentId" text="Student ID" prefWidth="150.0"/>
+            <TableColumn fx:id="colStatus" text="Status" prefWidth="100.0"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="10">
+        <Button fx:id="btnStop" text="Stop" onAction="#stopBatchRun"/>
+        <Button fx:id="btnBack" text="Back to Results" onAction="#backToResults"/>
+    </HBox>
+</VBox>

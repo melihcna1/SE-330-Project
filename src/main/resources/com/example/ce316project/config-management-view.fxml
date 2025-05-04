@@ -1,23 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.ConfigManagementController">
-    <center>
-        <TableView fx:id="configTable" prefHeight="300">
-            <columns>
-                <TableColumn fx:id="nameColumn" text="Name" prefWidth="200"/>
-                <TableColumn fx:id="pathColumn" text="Path" prefWidth="300"/>
-            </columns>
-        </TableView>
-    </center>
-    <bottom>
-        <HBox spacing="10" padding="10">
-            <Button text="New" onAction="#handleNew"/>
-            <Button text="Edit" onAction="#handleEdit"/>
-            <Button text="Delete" onAction="#handleDelete"/>
-        </HBox>
-    </bottom>
-</BorderPane>
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.ConfigManagementController" spacing="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <Label text="Configuration Management"/>
+    <TableView fx:id="tableConfigurations" prefHeight="300.0">
+        <columns>
+            <TableColumn fx:id="colName" text="Name" prefWidth="150.0"/>
+            <TableColumn fx:id="colLanguage" text="Language" prefWidth="100.0"/>
+            <TableColumn fx:id="colCompileCommand" text="Compile Command" prefWidth="150.0"/>
+            <TableColumn fx:id="colRunCommand" text="Run Command" prefWidth="150.0"/>
+        </columns>
+    </TableView>
+
+    <HBox spacing="10">
+        <Button fx:id="btnCreate" text="Create" onAction="#createConfiguration"/>
+        <Button fx:id="btnEdit" text="Edit" onAction="#editConfiguration"/>
+        <Button fx:id="btnDelete" text="Delete" onAction="#deleteConfiguration"/>
+        <Button fx:id="btnBack" text="Back to Main" onAction="#backToMain"/>
+    </HBox>
+</VBox>

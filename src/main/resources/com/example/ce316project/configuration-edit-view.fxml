@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.ConfigurationEditController" spacing="10">
+    <padding>
+        <Insets top="10" right="10" bottom="10" left="10"/>
+    </padding>
+
+    <Label text="Configuration Name"/>
+    <TextField fx:id="txtName"/>
+
+    <Label text="Language"/>
+    <TextField fx:id="txtLanguage"/>
+
+    <Label text="Tool Type"/>
+    <ChoiceBox fx:id="choiceToolType" prefWidth="200.0">
+        <items>
+            <fx:constant fx:value="COMPILER"/>
+            <fx:constant fx:value="INTERPRETER"/>
+            <fx:constant fx:value="UNZIP"/>
+            <fx:constant fx:value="DIFF"/>
+            <fx:constant fx:value="CUSTOM"/>
+        </items>
+    </ChoiceBox>
+
+    <Label text="Executable"/>
+    <TextField fx:id="txtExecutable"/>
+
+    <Label text="Compiler Args"/>
+    <TextField fx:id="txtCompilerArgs"/>
+
+    <HBox spacing="10" alignment="CENTER">
+        <Button fx:id="btnSave" text="Save" onAction="#saveConfiguration"/>
+        <Button fx:id="btnCancel" text="Cancel" onAction="#cancel"/>
+    </HBox>
+</VBox>
