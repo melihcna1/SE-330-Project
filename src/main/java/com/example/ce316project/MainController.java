@@ -1,5 +1,6 @@
 package com.example.ce316project;
 
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -10,7 +11,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -22,6 +25,7 @@ public class MainController {
 
     private MainApp mainApp;
     private Project currentProject;
+    private BatchRunProgressController batchRunProgressController;
 
     public void setMainApp(MainApp mainApp) {
         this.mainApp = mainApp;
@@ -239,8 +243,109 @@ public class MainController {
             showErrorDialog("Error", "No project is currently open!");
             return;
         }
-        System.out.println("Run Batch clicked");
-        showBatchRunProgress();
+        processBatchZipSubmissions();
+    }
+
+    /**
+     * Processes all ZIP submissions in the project's submission directory.
+     */
+    private void processBatchZipSubmissions() {
+        try {
+            // Create an extract directory within the results directory
+            String extractPath = currentProject.getResultDir() + File.separator + "extracted";
+            
+            // Create ZIP processor with project's submission directory
+            ZipProcessor zipProcessor = new ZipProcessor(currentProject.getSubmissionsDir(), extractPath);
+            
+            // Process all ZIP files and get initial results
+            List<StudentResult> zipResults = zipProcessor.processAllZipFiles();
+            
+            if (zipResults.isEmpty()) {
+                showErrorDialog("No ZIP Files", "No ZIP files found in the submissions directory!");
+                return;
+            }
+            
+            // Store the initial results
+            currentProject.setResults(zipResults);
+            
+            // Show batch run progress
+            showBatchRunProgress();
+            
+            // Process the extracted files in a background thread
+            new Thread(() -> {
+                try {
+                    // Now we need to run the student code on each extracted submission
+                    File extractDir = new File(extractPath);
+                    File[] studentDirs = extractDir.listFiles(File::isDirectory);
+                    
+                    if (studentDirs != null) {
+                        // Get the currently selected configuration
+                        Configuration config = currentProject.getConfigurations().get(0); // Default to first config
+                        
+                        // Execute the student code using our project's Executor class
+                        com.example.ce316project.Executor executor = new com.example.ce316project.Executor(config, studentDirs);
+                        
+                        // Read the expected output from the project's test case
+                        String expectedOutput = "";
+                        try {
+                            File expectedOutputFile = new File(currentProject.getTestCase().getExpectedOutputFile());
+                            if (expectedOutputFile.exists()) {
+                                expectedOutput = new String(Files.readAllBytes(expectedOutputFile.toPath()));
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        
+                        // Get any command line arguments from the input file
+                        List<String> args = new ArrayList<>();
+                        try {
+                            File inputFile = new File(currentProject.getTestCase().getInputFile());
+                            if (inputFile.exists()) {
+                                args.add(inputFile.getAbsolutePath());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        
+                        // Run the code and get updated results
+                        StudentResult[] runResults = executor.run(expectedOutput, args);
+                        
+                        // Update the project results and the progress UI
+                        Platform.runLater(() -> {
+                            currentProject.setResults(Arrays.asList(runResults));
+                            
+                            // Update each result in the progress UI
+                            if (batchRunProgressController != null) {
+                                for (StudentResult result : runResults) {
+                                    batchRunProgressController.updateStudentResult(result);
+                                }
+                            }
+                            
+                            // Save results
+                            try {
+                                Path resultPath = Paths.get(currentProject.getResultDir(), "results.json");
+                                File resultDir = new File(currentProject.getResultDir());
+                                if (!resultDir.exists()) {
+                                    resultDir.mkdirs();
+                                }
+                                ResultRecorder recorder = new ResultRecorder(
+                                    currentProject, 
+                                    resultPath, 
+                                    Paths.get(currentProject.getResultDir())
+                                );
+                                recorder.recordAll();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                } catch (Exception e) {
+                    Platform.runLater(() -> showErrorDialog("Error", "Error processing submissions: " + e.getMessage()));
+                }
+            }).start();
+        } catch (Exception e) {
+            showErrorDialog("Error", "Failed to process ZIP files: " + e.getMessage());
+        }
     }
 
     @FXML
@@ -315,9 +420,9 @@ public class MainController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/batch-run-progress-view.fxml"));
             mainPane.setCenter(loader.load());
 
-            BatchRunProgressController controller = loader.getController();
-            controller.setMainController(this);
-            controller.startBatchRun(currentProject.getResults());
+            batchRunProgressController = loader.getController();
+            batchRunProgressController.setMainController(this);
+            batchRunProgressController.startBatchRun(currentProject.getResults());
         } catch (IOException e) {
             showErrorDialog("Error", "Failed to load batch run progress view: " + e.getMessage());
         }

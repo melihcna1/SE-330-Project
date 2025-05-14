@@ -15,6 +15,8 @@
             <TableColumn fx:id="colStatus" text="Status" prefWidth="100.0"/>
         </columns>
     </TableView>
+    
+    <Label fx:id="lblProgress" text="Waiting to start..." />
 
     <HBox spacing="10">
         <Button fx:id="btnStop" text="Stop" onAction="#stopBatchRun"/>
