@@ -7,9 +7,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 public class ConfigManagementController {
     @FXML
@@ -30,6 +35,10 @@ public class ConfigManagementController {
     private Button btnDelete;
     @FXML
     private Button btnBack;
+    @FXML
+    private Button btnImport;
+    @FXML
+    private Button btnExport;
 
     private ObservableList<Configuration> configurationList = FXCollections.observableArrayList();
     private MainController mainController;
@@ -85,6 +94,82 @@ public class ConfigManagementController {
     @FXML
     private void backToMain() {
         mainController.showMainView();
+    }
+
+    /**
+     * Export the selected configuration to a file that can be shared
+     */
+    @FXML
+    private void exportConfiguration() {
+        Configuration selectedConfig = tableConfigurations.getSelectionModel().getSelectedItem();
+        if (selectedConfig == null) {
+            mainController.showErrorDialog("Error", "Please select a configuration to export!");
+            return;
+        }
+
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Export Configuration");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Configuration Files", "*.config.json"));
+        fileChooser.setInitialFileName(selectedConfig.getName() + ".config.json");
+        
+        File exportFile = fileChooser.showSaveDialog(mainController.getMainApp().getPrimaryStage());
+        if (exportFile != null) {
+            try {
+                ConfigurationIO.save(selectedConfig, exportFile.toPath());
+                mainController.showPlaceholderDialog("Success", "Configuration exported successfully to: " + exportFile.getPath());
+            } catch (IOException e) {
+                mainController.showErrorDialog("Export Error", "Failed to export configuration: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Import a configuration from a file
+     */
+    @FXML
+    private void importConfiguration() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Import Configuration");
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("Configuration Files", "*.config.json", "*.json"));
+        
+        File importFile = fileChooser.showOpenDialog(mainController.getMainApp().getPrimaryStage());
+        if (importFile != null) {
+            try {
+                Configuration importedConfig = ConfigurationIO.load(importFile.toPath());
+                
+                // Check if a configuration with the same name already exists
+                boolean nameExists = configurationList.stream()
+                    .anyMatch(c -> c.getName().equals(importedConfig.getName()));
+                
+                if (nameExists) {
+                    // Add a suffix to ensure uniqueness
+                    importedConfig.setName(importedConfig.getName() + "_imported");
+                }
+                
+                // Add to the current project and update the view
+                configurationList.add(importedConfig);
+                mainController.getCurrentProject().getConfigurations().add(importedConfig);
+                
+                // Save the imported configuration to the configurations directory for future use
+                try {
+                    // Ensure CONFIGURATIONS directory exists
+                    File configDir = new File("src/CONFIGURATIONS");
+                    if (!configDir.exists()) {
+                        configDir.mkdirs();
+                    }
+                    
+                    Path targetPath = Path.of("src/CONFIGURATIONS", importedConfig.getName() + ".json");
+                    ConfigurationIO.save(importedConfig, targetPath);
+                } catch (IOException e) {
+                    // Just log this - not critical since the configuration is already added to the project
+                    System.err.println("Could not save imported configuration to CONFIGURATIONS directory: " + e.getMessage());
+                }
+                
+                mainController.showPlaceholderDialog("Success", "Configuration imported successfully: " + importedConfig.getName());
+            } catch (IOException | ConfigurationIO.InvalidFormatException e) {
+                mainController.showErrorDialog("Import Error", "Failed to import configuration: " + e.getMessage());
+            }
+        }
     }
 
     private void showConfigurationDialog(Configuration config) {
