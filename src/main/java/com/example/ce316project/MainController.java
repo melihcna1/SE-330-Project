@@ -1,5 +1,14 @@
 package com.example.ce316project;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
+
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
@@ -9,14 +18,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 public class MainController {
 
@@ -283,32 +284,10 @@ public class MainController {
                         Configuration config = currentProject.getConfigurations().get(0); // Default to first config
                         
                         // Execute the student code using our project's Executor class
-                        com.example.ce316project.Executor executor = new com.example.ce316project.Executor(config, studentDirs);
-                        
-                        // Read the expected output from the project's test case
-                        String expectedOutput = "";
-                        try {
-                            File expectedOutputFile = new File(currentProject.getTestCase().getExpectedOutputFile());
-                            if (expectedOutputFile.exists()) {
-                                expectedOutput = new String(Files.readAllBytes(expectedOutputFile.toPath()));
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        
-                        // Get any command line arguments from the input file
-                        List<String> args = new ArrayList<>();
-                        try {
-                            File inputFile = new File(currentProject.getTestCase().getInputFile());
-                            if (inputFile.exists()) {
-                                args.add(inputFile.getAbsolutePath());
-                            }
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
+                        Runner executor = new Runner(config, studentDirs,new File(currentProject.getTestCase().getInputFile()),new File(currentProject.getTestCase().getExpectedOutputFile()));
                         
                         // Run the code and get updated results
-                        StudentResult[] runResults = executor.run(expectedOutput, args);
+                        StudentResult[] runResults = executor.run();
                         
                         // Update the project results and the progress UI
                         Platform.runLater(() -> {
