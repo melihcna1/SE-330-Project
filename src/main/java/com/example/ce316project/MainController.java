@@ -347,8 +347,28 @@ public class MainController {
 
     @FXML
     private void handleHelpManual() {
-        System.out.println("Help Manual clicked");
-        showPlaceholderDialog("Help", "Help manual should open here.");
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Help Manual");
+        alert.setHeaderText("IAE - Integrated Assignment Environment Manual");
+        alert.setContentText(
+                "Welcome to the Integrated Assignment Environment (IAE)!\n\n" +
+                        "How to Use:\n" +
+                        "1. Create a New Project:\n" +
+                        "   - Go to File > New Project to set up a new project.\n" +
+                        "   - Specify the configuration and submission directories.\n" +
+                        "2. Open an Existing Project:\n" +
+                        "   - Go to File > Open Project to load a previously saved project.\n" +
+                        "3. Manage Configurations:\n" +
+                        "   - Create, edit, or delete configurations for compiling and running student submissions.\n" +
+                        "4. Run Batch Processing:\n" +
+                        "   - Use the 'Run Batch' option to process all student ZIP submissions automatically.\n" +
+                        "5. Export Results:\n" +
+                        "   - Export results to CSV or HTML format via the File menu.\n" +
+                        "6. Save Your Work:\n" +
+                        "   - Save your project using File > Save Project or Save Project As.\n\n" +
+                        "For more details, contact the support team."
+        );
+        alert.showAndWait();
     }
 
     @FXML
