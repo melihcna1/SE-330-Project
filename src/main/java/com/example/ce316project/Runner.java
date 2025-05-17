@@ -25,8 +25,8 @@ public class Runner {
         Process[] pc = new Process[files.length];
         Process[] pr = new Process[files.length];
         if (!c.getCompileCmd().isEmpty()) {
+            ProcessBuilder pbc = new ProcessBuilder(c.getCompileCmd().split(" "));
             for (int i=0;i<files.length;i++) {
-                ProcessBuilder pbc = new ProcessBuilder(c.getCompileCmd());
                 pbc.directory(files[i]);
                 pbc.redirectErrorStream();
                 pbc.redirectOutput(new File(files[i],"compileLog.txt"));
@@ -35,10 +35,10 @@ public class Runner {
                 } catch (IOException ex) {}
             }
         }
+        ProcessBuilder pbr = new ProcessBuilder(c.getRunCall().split(" "));
         for (int i=0;i<files.length;i++) {
-            if (pc[i].waitFor()!=0) {
+            if (pc[i].waitFor()==0) {
                 compiled[i]=true;
-                ProcessBuilder pbr = new ProcessBuilder();
                 pbr.directory(files[i]);
                 pbr.redirectInput(input);
                 pbr.redirectOutput(new File(files[i],"runLog.txt"));
@@ -59,10 +59,6 @@ public class Runner {
             while ((l = logBufferedReader.readLine())!=null) {
                 comOut += l;
             }
-            BufferedReader errBufferedReader = new BufferedReader(new FileReader(files[i].getAbsolutePath()+"/compileErr.txt"));
-            while ((l = errBufferedReader.readLine())!=null) {
-                comErr += l;
-            }
             if (!compiled[i]) {
                 try {
                     pr[i].waitFor();
@@ -74,13 +70,9 @@ public class Runner {
                 while ((l = logBufferedReader.readLine())!=null) {
                     log += l;
                 }
-                errBufferedReader = new BufferedReader(new FileReader(files[i].getAbsolutePath()+"/runErr.txt"));
-                while ((l = errBufferedReader.readLine())!=null) {
-                    err += l;
-                }
             }
-            results[i] = new StudentResult(files[i].getName(),"",comErr , comOut, "", 0);
-            if (compiled[i]) {
+            results[i] = new StudentResult(files[i].getName(),"",comErr , comOut, "", 31);
+            if (!compiled[i]) {
                 results[i].setStatus("Compiler fail");
             }
             else {
@@ -91,7 +83,6 @@ public class Runner {
                 }
                 else results[i].setStatus("failed");
             }
-            errBufferedReader.close();
             logBufferedReader.close();
         }
         return results;
