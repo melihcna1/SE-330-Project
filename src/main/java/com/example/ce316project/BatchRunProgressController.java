@@ -46,6 +46,8 @@ public class BatchRunProgressController {
 
     public void startBatchRun(List<StudentResult> results) {
         progressList.setAll(results);
+        tableProgress.setItems(progressList); // Ensure table is bound
+        tableProgress.refresh(); // Force refresh if needed
         totalCount = results.size();
         processedCount = 0;
         updateProgressLabel();

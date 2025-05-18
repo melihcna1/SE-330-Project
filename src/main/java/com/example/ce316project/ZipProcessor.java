@@ -76,9 +76,9 @@ public class ZipProcessor {
                 // Create a StudentResult with initial "Processing" status
                 StudentResult result = new StudentResult(
                         studentId,
-                        "Processing",
+                        "Extracting",  // Initial status
                         "",
-                        "Extracted to " + extractPath,
+                        "Extracting submission...",
                         "",
                         System.currentTimeMillis()
                 );

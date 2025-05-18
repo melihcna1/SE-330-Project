@@ -65,11 +65,12 @@ public class Runner {
         return pb;
     }
 
+    // In Runner.java
     private StudentResult runSubmission(String studentId, ProcessBuilder pb) {
         try {
             Process process = pb.start();
 
-            // Handle input file if exists
+            // Handle input file
             if (inputFile != null && inputFile.exists()) {
                 try (OutputStream out = process.getOutputStream()) {
                     Files.copy(inputFile.toPath(), out);
@@ -109,19 +110,31 @@ public class Runner {
 
             int exitCode = process.waitFor();
 
-            // Compare with expected output
+            // Compare with expected output if execution succeeded
             String diffOutput = "";
             if (exitCode == 0 && expectedOutputFile != null && expectedOutputFile.exists()) {
                 String expectedOutput = Files.readString(expectedOutputFile.toPath());
                 diffOutput = compareOutputs(output, expectedOutput);
+
+                // Update status based on output comparison
+                String status = diffOutput.startsWith("Outputs match") ? "Passed" : "Failed";
+                return new StudentResult(
+                        studentId,
+                        status,
+                        "",
+                        output,
+                        diffOutput,
+                        System.currentTimeMillis()
+                );
             }
 
+            // If execution failed
             return new StudentResult(
                     studentId,
-                    exitCode == 0 ? "Passed" : "Failed",
-                    exitCode == 0 ? "" : "Process exited with code " + exitCode,
+                    "Failed",
+                    "Process exited with code " + exitCode,
                     output,
-                    diffOutput,
+                    "",
                     System.currentTimeMillis()
             );
 

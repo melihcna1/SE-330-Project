@@ -432,7 +432,8 @@ public class MainController {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/batch-run-progress-view.fxml"));
             mainPane.setCenter(loader.load());
 
-            batchRunProgressController = loader.getController();
+            batchRunProgressController = loader.getController(
+            );
             batchRunProgressController.setMainController(this);
             batchRunProgressController.startBatchRun(currentProject.getResults());
         } catch (IOException e) {
