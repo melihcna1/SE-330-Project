@@ -1,0 +1,1 @@
+{"schemaVersion":"1.0","payload":{"name":"as","language":"sa","tool":{"type":"COMPILER","executable":"java main","compilerArgs":"javac main.java","location":"C:\\Program Files\\Java\\jdk-19\\bin\\java.exe"},"toolType":"COMPILER"}}
