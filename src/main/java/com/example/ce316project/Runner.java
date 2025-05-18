@@ -1,93 +1,146 @@
 package com.example.ce316project;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
+import java.util.Arrays;
+import java.util.concurrent.*;
 
 public class Runner {
-    Configuration c;
-    File[] files;
-    boolean[] compiled;
-    File input;
-    File output;
-    public Runner(Configuration c,File[] files,File input,File output) {
-        this.c = c;
-        this.files = files;
-        this.input = input;
-        this.output = output;
-        compiled = new boolean[files.length];
+    private final Configuration config;
+    private final File[] submissionDirs;
+    private final File inputFile;
+    private final File expectedOutputFile;
+    private static final int TIMEOUT_SECONDS = 30;
+
+    public Runner(Configuration config, File[] submissionDirs, File inputFile, File expectedOutputFile) {
+        this.config = config;
+        this.submissionDirs = submissionDirs;
+        this.inputFile = inputFile;
+        this.expectedOutputFile = expectedOutputFile;
     }
-    
-    public StudentResult[] run() throws InterruptedException, IOException {
-        StudentResult[] results = new StudentResult[files.length];
-        Process[] pc = new Process[files.length];
-        Process[] pr = new Process[files.length];
-        if (!c.getCompileCmd().isEmpty()) {
-            ProcessBuilder pbc = new ProcessBuilder(c.getCompileCmd().split(" "));
-            for (int i=0;i<files.length;i++) {
-                pbc.directory(files[i]);
-                pbc.redirectErrorStream();
-                pbc.redirectOutput(new File(files[i],"compileLog.txt"));
-                try {
-                    pc[i] = pbc.start();
-                } catch (IOException ex) {}
+
+    public StudentResult[] run() {
+        StudentResult[] results = new StudentResult[submissionDirs.length];
+
+        for (int i = 0; i < submissionDirs.length; i++) {
+            File dir = submissionDirs[i];
+            String studentId = dir.getName();
+
+            try {
+                ProcessBuilder pb = createProcessBuilder(dir);
+                results[i] = runSubmission(studentId, pb);
+            } catch (Exception e) {
+                results[i] = new StudentResult(
+                        studentId,
+                        "Failed",
+                        e.getMessage(),
+                        "Error running submission",
+                        "",
+                        System.currentTimeMillis()
+                );
             }
         }
-        ProcessBuilder pbr = new ProcessBuilder(c.getRunCall().split(" "));
-        for (int i=0;i<files.length;i++) {
-            if (pc[i].waitFor()==0) {
-                compiled[i]=true;
-                pbr.directory(files[i]);
-                pbr.redirectInput(input);
-                pbr.redirectOutput(new File(files[i],"runLog.txt"));
-                pbr.redirectError(new File(files[i],"runErr.txt"));
-                try {
-                    pr[i] = pbr.start();
-                } catch (IOException ex) {}
-            }
-        }
-        for (int i=0;i<results.length;i++) {
-            String err = "";
-            String log = "";
-            String comErr = "";
-            String comOut = "";
-            String l;
-            if (compiled[i]) {}
-            BufferedReader logBufferedReader = new BufferedReader(new FileReader(files[i].getAbsolutePath()+"/compileLog.txt"));
-            while ((l = logBufferedReader.readLine())!=null) {
-                comOut += l;
-            }
-            if (!compiled[i]) {
-                try {
-                    pr[i].waitFor();
-                } 
-                catch (InterruptedException ex) {
-                }
-                
-                logBufferedReader = new BufferedReader(new FileReader(files[i].getAbsolutePath()+"/runLog.txt"));
-                while ((l = logBufferedReader.readLine())!=null) {
-                    log += l;
-                }
-            }
-            results[i] = new StudentResult(files[i].getName(),"",comErr , comOut, "", 31);
-            if (!compiled[i]) {
-                results[i].setStatus("Compiler fail");
-            }
-            else {
-                results[i].setErrors(err);
-                results[i].setLog(log);
-                if (Files.mismatch(output.toPath(), new File(files[i].getAbsolutePath()+"/runLog.txt").toPath()) == -1) {
-                results[i].setStatus("passed");
-                }
-                else results[i].setStatus("failed");
-            }
-            logBufferedReader.close();
-        }
+
         return results;
-
-        
     }
 
+    private ProcessBuilder createProcessBuilder(File workDir) {
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.directory(workDir);
+
+        if (config.getTools().getType() == ToolType.COMPILER) {
+            pb.command(Arrays.asList(
+                    config.getTools().getLocation(),
+                    config.getCompilerArguments(),
+                    "*.java" // Or other source files based on language
+            ));
+        } else {
+            pb.command(Arrays.asList(
+                    config.getTools().getLocation(),
+                    config.getRunCall()
+            ));
+        }
+
+        pb.redirectErrorStream(true);
+        return pb;
+    }
+
+    private StudentResult runSubmission(String studentId, ProcessBuilder pb) {
+        try {
+            Process process = pb.start();
+
+            // Handle input file if exists
+            if (inputFile != null && inputFile.exists()) {
+                try (OutputStream out = process.getOutputStream()) {
+                    Files.copy(inputFile.toPath(), out);
+                }
+            }
+
+            // Collect output with timeout
+            ExecutorService executor = Executors.newSingleThreadExecutor();
+            Future<String> future = executor.submit(() -> {
+                StringBuilder output = new StringBuilder();
+                try (BufferedReader reader = new BufferedReader(
+                        new InputStreamReader(process.getInputStream()))) {
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        output.append(line).append("\n");
+                    }
+                }
+                return output.toString();
+            });
+
+            String output;
+            try {
+                output = future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
+            } catch (TimeoutException e) {
+                process.destroyForcibly();
+                return new StudentResult(
+                        studentId,
+                        "Failed",
+                        "Execution timed out after " + TIMEOUT_SECONDS + " seconds",
+                        "",
+                        "",
+                        System.currentTimeMillis()
+                );
+            } finally {
+                executor.shutdownNow();
+            }
+
+            int exitCode = process.waitFor();
+
+            // Compare with expected output
+            String diffOutput = "";
+            if (exitCode == 0 && expectedOutputFile != null && expectedOutputFile.exists()) {
+                String expectedOutput = Files.readString(expectedOutputFile.toPath());
+                diffOutput = compareOutputs(output, expectedOutput);
+            }
+
+            return new StudentResult(
+                    studentId,
+                    exitCode == 0 ? "Passed" : "Failed",
+                    exitCode == 0 ? "" : "Process exited with code " + exitCode,
+                    output,
+                    diffOutput,
+                    System.currentTimeMillis()
+            );
+
+        } catch (Exception e) {
+            return new StudentResult(
+                    studentId,
+                    "Failed",
+                    e.getMessage(),
+                    "",
+                    "",
+                    System.currentTimeMillis()
+            );
+        }
+    }
+
+    private String compareOutputs(String actual, String expected) {
+        if (actual.equals(expected)) {
+            return "Outputs match exactly";
+        }
+        return "Expected:\n" + expected + "\nActual:\n" + actual;
+    }
 }

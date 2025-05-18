@@ -6,6 +6,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -252,81 +253,93 @@ public class MainController {
      */
     private void processBatchZipSubmissions() {
         try {
-            // Create an extract directory within the results directory
-            String extractPath = currentProject.getResultDir() + File.separator + "extracted";
-            
-            // Create ZIP processor with project's submission directory
-            ZipProcessor zipProcessor = new ZipProcessor(currentProject.getSubmissionsDir(), extractPath);
-            
-            // Process all ZIP files and get initial results
-            List<StudentResult> zipResults = zipProcessor.processAllZipFiles();
-            
-            if (zipResults.isEmpty()) {
-                showErrorDialog("No ZIP Files", "No ZIP files found in the submissions directory!");
-                return;
+            // First verify that project exists and has configurations
+            if (currentProject == null) {
+                throw new IllegalStateException("No project is currently loaded");
             }
-            
-            // Store the initial results
+
+            // Load project configurations
+            List<Configuration> configs = currentProject.getConfigurations();
+            System.out.println("Project configurations: " + (configs != null ? configs.size() : "null"));
+
+            if (configs == null || configs.isEmpty()) {
+                // Try loading configuration from configurationPath
+                try {
+                    Configuration loadedConfig = ConfigurationIO.load(Path.of(currentProject.getConfigurationPath()));
+                    if (loadedConfig != null) {
+                        configs = new ArrayList<>();
+                        configs.add(loadedConfig);
+                        currentProject.setConfigurations(configs);
+                    }
+                } catch (IOException e) {
+                    throw new IllegalStateException("Failed to load configuration: " + e.getMessage());
+                }
+            }
+
+            // Verify configurations again after potential load
+            if (configs == null || configs.isEmpty()) {
+                throw new IllegalStateException("No configuration available");
+            }
+
+            // Get the first configuration and verify it's valid
+            Configuration config = configs.get(0);
+            if (config == null || config.getTools() == null) {
+                throw new IllegalStateException("Invalid configuration");
+            }
+
+            // Create results and extract directories
+            String extractPath = currentProject.getResultDir() + File.separator + "extracted";
+            File extractDir = new File(extractPath);
+            extractDir.mkdirs();
+
+            // Process ZIP files
+            ZipProcessor zipProcessor = new ZipProcessor(currentProject.getSubmissionsDir(), extractPath);
+            List<StudentResult> zipResults = zipProcessor.processAllZipFiles();
+
+            if (zipResults.isEmpty()) {
+                throw new IllegalStateException("No submissions found to process");
+            }
+
+            // Store initial results and show progress
             currentProject.setResults(zipResults);
-            
-            // Show batch run progress
             showBatchRunProgress();
-            
+
             // Process the extracted files in a background thread
             new Thread(() -> {
                 try {
-                    // Now we need to run the student code on each extracted submission
-                    File extractDir = new File(extractPath);
-                    File[] studentDirs = extractDir.listFiles(File::isDirectory);
-                    
-                    if (studentDirs != null) {
-                        // Get the currently selected configuration
-                        Configuration config = currentProject.getConfigurations().get(0); // Default to first config
-                        
-                        // Execute the student code using our project's Executor class
-                        Runner executor = new Runner(config, studentDirs,new File(currentProject.getTestCase().getInputFile()),new File(currentProject.getTestCase().getExpectedOutputFile()));
-                        
-                        // Run the code and get updated results
-                        StudentResult[] runResults = executor.run();
-                        
-                        // Update the project results and the progress UI
-                        Platform.runLater(() -> {
-                            currentProject.setResults(Arrays.asList(runResults));
-                            
-                            // Update each result in the progress UI
-                            if (batchRunProgressController != null) {
-                                for (StudentResult result : runResults) {
-                                    batchRunProgressController.updateStudentResult(result);
-                                }
-                            }
-                            
-                            // Save results
-                            try {
-                                Path resultPath = Paths.get(currentProject.getResultDir(), "results.json");
-                                File resultDir = new File(currentProject.getResultDir());
-                                if (!resultDir.exists()) {
-                                    resultDir.mkdirs();
-                                }
-                                ResultRecorder recorder = new ResultRecorder(
-                                    currentProject, 
-                                    resultPath, 
-                                    Paths.get(currentProject.getResultDir())
-                                );
-                                recorder.recordAll();
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        });
+                    File inputFile = new File(currentProject.getTestCase().getInputFile());
+                    File outputFile = new File(currentProject.getTestCase().getExpectedOutputFile());
+                    File[] submissionDirs = new File(extractPath).listFiles(File::isDirectory);
+
+                    if (submissionDirs == null || submissionDirs.length == 0) {
+                        throw new IllegalStateException("No submission directories found");
                     }
+
+                    Runner runner = new Runner(config, submissionDirs, inputFile, outputFile);
+                    StudentResult[] results = runner.run();
+
+                    // Update results in the UI
+                    for (StudentResult result : results) {
+                        if (result != null) {
+                            Platform.runLater(() -> {
+                                batchRunProgressController.updateStudentResult(result);
+                            });
+                        }
+                    }
+
                 } catch (Exception e) {
-                    Platform.runLater(() -> showErrorDialog("Error", "Error processing submissions: " + e.getMessage()));
+                    Platform.runLater(() -> {
+                        showErrorDialog("Processing Error", "Failed to process submissions: " + e.getMessage());
+                    });
+                    e.printStackTrace();
                 }
             }).start();
+
         } catch (Exception e) {
-            showErrorDialog("Error", "Failed to process ZIP files: " + e.getMessage());
+            showErrorDialog("Error", "Failed to process submissions: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-
     @FXML
     private void handleManageConfigurations() {
         if (currentProject == null) {
