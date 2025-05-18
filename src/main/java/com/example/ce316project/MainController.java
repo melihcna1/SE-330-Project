@@ -16,9 +16,11 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextArea;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -361,19 +363,18 @@ public class MainController {
     }
     @FXML
     private void handleManageConfigurations() {
-        if (currentProject == null) {
-            showErrorDialog("Error", "No project is currently open!");
-            return;
-        }
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/configuration-management-view.fxml"));
-            mainPane.setCenter(loader.load());
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/config-management-view.fxml"));
+            Parent root = loader.load();
 
             ConfigManagementController controller = loader.getController();
             controller.setMainController(this);
-            controller.setConfigurations(FXCollections.observableArrayList(currentProject.getConfigurations()));
+
+            // Replace current content with config management view
+            mainPane.setCenter(root);
+
         } catch (IOException e) {
-            showErrorDialog("Error", "Failed to load configuration management view: " + e.getMessage());
+            showErrorDialog("Error", "Could not load configuration management view: " + e.getMessage());
         }
     }
 
@@ -381,25 +382,52 @@ public class MainController {
     private void handleHelpManual() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Help Manual");
-        alert.setHeaderText("IAE - Integrated Assignment Environment Manual");
-        alert.setContentText(
-                "Welcome to the Integrated Assignment Environment (IAE)!\n\n" +
-                        "How to Use:\n" +
-                        "1. Create a New Project:\n" +
-                        "   - Go to File > New Project to set up a new project.\n" +
-                        "   - Specify the configuration and submission directories.\n" +
-                        "2. Open an Existing Project:\n" +
-                        "   - Go to File > Open Project to load a previously saved project.\n" +
-                        "3. Manage Configurations:\n" +
-                        "   - Create, edit, or delete configurations for compiling and running student submissions.\n" +
-                        "4. Run Batch Processing:\n" +
-                        "   - Use the 'Run Batch' option to process all student ZIP submissions automatically.\n" +
-                        "5. Export Results:\n" +
-                        "   - Export results to CSV or HTML format via the File menu.\n" +
-                        "6. Save Your Work:\n" +
-                        "   - Save your project using File > Save Project or Save Project As.\n\n" +
-                        "For more details, contact the support team."
-        );
+        alert.setHeaderText("IAE - Integrated Assignment Environment");
+
+        String content = """
+        Welcome to IAE! Here's how to use the application:
+        
+        1. Project Management
+           • Create New Project: File > New Project
+           • Open Project: File > Open Project
+           • Save Project: File > Save or Save As
+        
+        2. Configuration Management
+           • Create Configuration: File > New Configuration
+           • Edit Configuration: File > Edit Configurations
+           • Delete Configuration: File > Delete Configurations
+           • Manage Project Configs: Run > Manage Configurations
+        
+        3. Running Assignments
+           • Batch Processing: Run > Run Batch
+           • Supported file types: .zip submissions
+           • Results show compilation and test status
+        
+        4. Results & Export
+           • View detailed results in results table
+           • Export results to CSV: File > Export to CSV
+           • Export results to HTML: File > Export to HTML 
+           • Save individual logs using "Save Log" button
+           • Print logs using "Print Log" button
+        
+        5. Key Features
+           • Automatic ZIP extraction
+           • Multiple compiler/interpreter support
+           • Detailed error reporting
+           • Batch processing progress tracking
+           • Individual result inspection
+        
+        For technical support or bug reports, please contact the development team.
+        Version: 1.0
+        """;
+
+        TextArea textArea = new TextArea(content);
+        textArea.setEditable(false);
+        textArea.setWrapText(true);
+        textArea.setPrefRowCount(20);
+        textArea.setPrefColumnCount(50);
+
+        alert.getDialogPane().setContent(textArea);
         alert.showAndWait();
     }
 

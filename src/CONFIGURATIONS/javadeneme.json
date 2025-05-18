@@ -1,1 +1,14 @@
-{"schemaVersion":"1.0","payload":{"name":"javadeneme","language":"java","tool":{"type":"COMPILER","executable":"java -cp . Main ","compilerArgs":"-d","location":"D:\\programfiles\\Java\\jdk-17\\bin\\javac.exe"},"toolType":"COMPILER"}}
+{
+  "schemaVersion": "1.0",
+  "payload": {
+    "name": "javadeneme",
+    "language": "java",
+    "tool": {
+      "type": "COMPILER",
+      "executable": "D:\\programfiles\\Java\\jdk-17\\bin\\javac.exe",
+      "compilerArgs": "-d .",
+      "location": "D:\\programfiles\\Java\\jdk-17\\bin\\javac.exe"
+    },
+    "toolType": "COMPILER"
+  }
+}

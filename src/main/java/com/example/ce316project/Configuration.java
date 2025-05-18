@@ -28,6 +28,15 @@ public class Configuration {
     }
 
 
+    public ToolType getToolType() {
+        return toolType;
+    }
+
+    public void setToolType(ToolType toolType) {
+        this.toolType = toolType;
+    }
+
+
     public String getName() {
         return name;
     }

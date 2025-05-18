@@ -2,7 +2,8 @@ package com.example.ce316project;
 
 import java.io.*;
 import java.nio.file.Files;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class Runner {
@@ -25,135 +26,115 @@ public class Runner {
         for (int i = 0; i < submissionDirs.length; i++) {
             File dir = submissionDirs[i];
             String studentId = dir.getName();
-
-            try {
-                ProcessBuilder pb = createProcessBuilder(dir);
-                results[i] = runSubmission(studentId, pb);
-            } catch (Exception e) {
-                results[i] = new StudentResult(
-                        studentId,
-                        "Failed",
-                        e.getMessage(),
-                        "Error running submission",
-                        "",
-                        System.currentTimeMillis()
-                );
-            }
+            results[i] = processSubmission(dir, studentId);
         }
 
         return results;
     }
 
-    private ProcessBuilder createProcessBuilder(File workDir) {
-        ProcessBuilder pb = new ProcessBuilder();
-        pb.directory(workDir);
+    private StudentResult processSubmission(File submissionDir, String studentId) {
+        StringBuilder log = new StringBuilder();
+        String errors = "";
+        String status = "Failed";
+        String diffOutput = "";
+        File actualOutputFile = new File(submissionDir, "output.txt");
 
-        if (config.getTools().getType() == ToolType.COMPILER) {
-            pb.command(Arrays.asList(
-                    config.getTools().getLocation(),
-                    config.getCompilerArguments(),
-                    "*.java" // Or other source files based on language
-            ));
-        } else {
-            pb.command(Arrays.asList(
-                    config.getTools().getLocation(),
-                    config.getRunCall()
-            ));
-        }
-
-        pb.redirectErrorStream(true);
-        return pb;
-    }
-
-    // In Runner.java
-    private StudentResult runSubmission(String studentId, ProcessBuilder pb) {
         try {
-            Process process = pb.start();
-
-            // Handle input file
-            if (inputFile != null && inputFile.exists()) {
-                try (OutputStream out = process.getOutputStream()) {
-                    Files.copy(inputFile.toPath(), out);
+            // Compile if using compiler
+            if (config.getToolType() == ToolType.COMPILER) {
+                boolean compileSuccess = compile(submissionDir, log);
+                if (!compileSuccess) {
+                    errors = "Compilation failed";
+                    return new StudentResult(studentId, status, errors, log.toString(), "", System.currentTimeMillis());
                 }
             }
 
-            // Collect output with timeout
-            ExecutorService executor = Executors.newSingleThreadExecutor();
-            Future<String> future = executor.submit(() -> {
-                StringBuilder output = new StringBuilder();
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(process.getInputStream()))) {
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        output.append(line).append("\n");
-                    }
-                }
-                return output.toString();
-            });
-
-            String output;
-            try {
-                output = future.get(TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            } catch (TimeoutException e) {
-                process.destroyForcibly();
-                return new StudentResult(
-                        studentId,
-                        "Failed",
-                        "Execution timed out after " + TIMEOUT_SECONDS + " seconds",
-                        "",
-                        "",
-                        System.currentTimeMillis()
-                );
-            } finally {
-                executor.shutdownNow();
+            // Run the program
+            boolean runSuccess = runProgram(submissionDir, actualOutputFile, log);
+            if (!runSuccess) {
+                errors = "Program execution failed";
+                return new StudentResult(studentId, status, errors, log.toString(), "", System.currentTimeMillis());
             }
 
-            int exitCode = process.waitFor();
-
-            // Compare with expected output if execution succeeded
-            String diffOutput = "";
-            if (exitCode == 0 && expectedOutputFile != null && expectedOutputFile.exists()) {
-                String expectedOutput = Files.readString(expectedOutputFile.toPath());
-                diffOutput = compareOutputs(output, expectedOutput);
-
-                // Update status based on output comparison
-                String status = diffOutput.startsWith("Outputs match") ? "Passed" : "Failed";
-                return new StudentResult(
-                        studentId,
-                        status,
-                        "",
-                        output,
-                        diffOutput,
-                        System.currentTimeMillis()
-                );
-            }
-
-            // If execution failed
-            return new StudentResult(
-                    studentId,
-                    "Failed",
-                    "Process exited with code " + exitCode,
-                    output,
-                    "",
-                    System.currentTimeMillis()
-            );
+            // Compare output
+            diffOutput = compareOutput(expectedOutputFile, actualOutputFile);
+            status = diffOutput.isEmpty() ? "Passed" : "Failed";
+            errors = diffOutput.isEmpty() ? "" : "Output mismatch";
 
         } catch (Exception e) {
-            return new StudentResult(
-                    studentId,
-                    "Failed",
-                    e.getMessage(),
-                    "",
-                    "",
-                    System.currentTimeMillis()
-            );
+            errors = "Error: " + e.getMessage();
+            e.printStackTrace();
         }
+
+        return new StudentResult(studentId, status, errors, log.toString(), diffOutput, System.currentTimeMillis());
     }
 
-    private String compareOutputs(String actual, String expected) {
-        if (actual.equals(expected)) {
-            return "Outputs match exactly";
+    private boolean compile(File dir, StringBuilder log) throws IOException, InterruptedException {
+        if (config.getCompileCmd() == null) return true;
+
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.directory(dir);
+        pb.command(config.getCompileCmd().split(" "));
+        pb.redirectErrorStream(true);
+
+        Process process = pb.start();
+        String output = captureOutput(process);
+        log.append("Compilation output:\n").append(output).append("\n");
+
+        return process.waitFor() == 0;
+    }
+
+    private boolean runProgram(File dir, File outputFile, StringBuilder log) throws IOException, InterruptedException {
+        String runCmd = config.getToolType() == ToolType.COMPILER ?
+                "java Main" : config.getRunCmd();
+
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.directory(dir);
+        pb.command(runCmd.split(" "));
+        pb.redirectInput(inputFile);
+        pb.redirectOutput(outputFile);
+        pb.redirectErrorStream(true);
+
+        Process process = pb.start();
+        String output = captureOutput(process);
+        log.append("Execution output:\n").append(output).append("\n");
+
+        return process.waitFor(TIMEOUT_SECONDS, TimeUnit.SECONDS) && process.exitValue() == 0;
+    }
+
+    private String captureOutput(Process process) throws IOException {
+        StringBuilder output = new StringBuilder();
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                output.append(line).append("\n");
+            }
         }
-        return "Expected:\n" + expected + "\nActual:\n" + actual;
+        return output.toString();
+    }
+
+    private String compareOutput(File expected, File actual) throws IOException {
+        if (!actual.exists()) {
+            return "No output file generated";
+        }
+
+        List<String> expectedLines = Files.readAllLines(expected.toPath());
+        List<String> actualLines = Files.readAllLines(actual.toPath());
+
+        StringBuilder diff = new StringBuilder();
+        int maxLines = Math.max(expectedLines.size(), actualLines.size());
+
+        for (int i = 0; i < maxLines; i++) {
+            String expectedLine = i < expectedLines.size() ? expectedLines.get(i) : "";
+            String actualLine = i < actualLines.size() ? actualLines.get(i) : "";
+
+            if (!expectedLine.equals(actualLine)) {
+                diff.append(String.format("Line %d:\n", i + 1));
+                diff.append(String.format("Expected: %s\n", expectedLine));
+                diff.append(String.format("Actual  : %s\n", actualLine));
+            }
+        }
+
+        return diff.toString();
     }
 }
