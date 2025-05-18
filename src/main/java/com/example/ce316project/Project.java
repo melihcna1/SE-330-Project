@@ -1,7 +1,9 @@
 package com.example.ce316project;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Project {
     private String projectName;
@@ -14,13 +16,42 @@ public class Project {
     private String schemaVersion = "1.0";
 
     public Project(String projectName, String configurationPath, String submissionsDir, String resultDir, TestCase testCase) {
-        this.projectName = projectName;
-        this.configurationPath = configurationPath;
-        this.submissionsDir = submissionsDir;
-        this.resultDir = resultDir;
-        this.testCase = testCase;
+        this.projectName = Objects.requireNonNull(projectName, "Project name cannot be null");
+        this.configurationPath = Objects.requireNonNull(configurationPath, "Configuration path cannot be null");
+        this.submissionsDir = Objects.requireNonNull(submissionsDir, "Submissions directory cannot be null");
+        this.resultDir = Objects.requireNonNull(resultDir, "Result directory cannot be null");
+        this.testCase = Objects.requireNonNull(testCase, "Test case cannot be null");
         this.results = new ArrayList<>();
         this.configurations = new ArrayList<>();
+        validatePaths();
+    }
+
+    private void validatePaths() {
+        validateDirectory(submissionsDir, "Submissions directory");
+        validateDirectory(resultDir, "Result directory");
+        validateFile(configurationPath, "Configuration file");
+        validateFile(testCase.getInputFile(), "Input file");
+        validateFile(testCase.getExpectedOutputFile(), "Expected output file");
+    }
+
+    private void validateDirectory(String path, String name) {
+        File dir = new File(path);
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+        if (!dir.isDirectory()) {
+            throw new IllegalArgumentException(name + " must be a directory: " + path);
+        }
+    }
+
+    private void validateFile(String path, String name) {
+        File file = new File(path);
+        if (!file.exists()) {
+            throw new IllegalArgumentException(name + " does not exist: " + path);
+        }
+        if (!file.isFile()) {
+            throw new IllegalArgumentException(name + " must be a file: " + path);
+        }
     }
 
     public String getProjectName() {
@@ -28,7 +59,7 @@ public class Project {
     }
 
     public void setProjectName(String projectName) {
-        this.projectName = projectName;
+        this.projectName = Objects.requireNonNull(projectName, "Project name cannot be null");
     }
 
     public String getConfigurationPath() {
@@ -36,7 +67,8 @@ public class Project {
     }
 
     public void setConfigurationPath(String configurationPath) {
-        this.configurationPath = configurationPath;
+        this.configurationPath = Objects.requireNonNull(configurationPath, "Configuration path cannot be null");
+        validateFile(configurationPath, "Configuration file");
     }
 
     public String getSubmissionsDir() {
@@ -44,7 +76,8 @@ public class Project {
     }
 
     public void setSubmissionsDir(String submissionsDir) {
-        this.submissionsDir = submissionsDir;
+        this.submissionsDir = Objects.requireNonNull(submissionsDir, "Submissions directory cannot be null");
+        validateDirectory(submissionsDir, "Submissions directory");
     }
 
     public String getResultDir() {
@@ -52,7 +85,8 @@ public class Project {
     }
 
     public void setResultDir(String resultDir) {
-        this.resultDir = resultDir;
+        this.resultDir = Objects.requireNonNull(resultDir, "Result directory cannot be null");
+        validateDirectory(resultDir, "Result directory");
     }
 
     public TestCase getTestCase() {
@@ -60,23 +94,37 @@ public class Project {
     }
 
     public void setTestCase(TestCase testCase) {
-        this.testCase = testCase;
+        this.testCase = Objects.requireNonNull(testCase, "Test case cannot be null");
+        validateFile(testCase.getInputFile(), "Input file");
+        validateFile(testCase.getExpectedOutputFile(), "Expected output file");
     }
 
     public List<StudentResult> getResults() {
-        return results;
+        return new ArrayList<>(results);
     }
 
     public void setResults(List<StudentResult> results) {
-        this.results = results;
+        this.results = new ArrayList<>(Objects.requireNonNull(results, "Results cannot be null"));
+    }
+
+    public void addResult(StudentResult result) {
+        Objects.requireNonNull(result, "Result cannot be null");
+        results.removeIf(r -> r.getStudentId().equals(result.getStudentId()));
+        results.add(result);
     }
 
     public List<Configuration> getConfigurations() {
-        return configurations;
+        return new ArrayList<>(configurations);
     }
 
     public void setConfigurations(List<Configuration> configurations) {
-        this.configurations = configurations;
+        this.configurations = new ArrayList<>(Objects.requireNonNull(configurations, "Configurations cannot be null"));
+    }
+
+    public void addConfiguration(Configuration configuration) {
+        Objects.requireNonNull(configuration, "Configuration cannot be null");
+        configurations.removeIf(c -> c.getName().equals(configuration.getName()));
+        configurations.add(configuration);
     }
 
     public String getSchemaVersion() {
@@ -84,16 +132,16 @@ public class Project {
     }
 
     public void setSchemaVersion(String schemaVersion) {
-        this.schemaVersion = schemaVersion;
+        this.schemaVersion = Objects.requireNonNull(schemaVersion, "Schema version cannot be null");
     }
 
-    static class TestCase {
+    public static class TestCase {
         private String inputFile;
         private String expectedOutputFile;
 
         public TestCase(String inputFile, String expectedOutputFile) {
-            this.inputFile = inputFile;
-            this.expectedOutputFile = expectedOutputFile;
+            this.inputFile = Objects.requireNonNull(inputFile, "Input file cannot be null");
+            this.expectedOutputFile = Objects.requireNonNull(expectedOutputFile, "Expected output file cannot be null");
         }
 
         public String getInputFile() {
@@ -101,7 +149,7 @@ public class Project {
         }
 
         public void setInputFile(String inputFile) {
-            this.inputFile = inputFile;
+            this.inputFile = Objects.requireNonNull(inputFile, "Input file cannot be null");
         }
 
         public String getExpectedOutputFile() {
@@ -109,7 +157,7 @@ public class Project {
         }
 
         public void setExpectedOutputFile(String expectedOutputFile) {
-            this.expectedOutputFile = expectedOutputFile;
+            this.expectedOutputFile = Objects.requireNonNull(expectedOutputFile, "Expected output file cannot be null");
         }
     }
 }

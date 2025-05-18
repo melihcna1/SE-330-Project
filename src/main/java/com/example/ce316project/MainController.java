@@ -108,9 +108,7 @@ public class MainController {
         dialogStage.setScene(new Scene(loader.load()));
 
         ConfigurationScreen controller = loader.getController();
-       // controller.mode = "CREATE";
-        controller.thisStage = dialogStage;
-        //    controller.setMainController(this);
+        controller.setStage(dialogStage);
         dialogStage.showAndWait();
     }
 
@@ -123,31 +121,22 @@ public class MainController {
         File file = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
 
         if (file != null) {
-            System.out.println("Opening Configuration: " + file.getPath());
             try {
                 Configuration configuration = ConfigurationIO.load(Path.of(file.getPath()));
-
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/ConfigurationScreenEdit.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/ce316project/ConfigurationScreen.fxml"));
                 Stage dialogStage = new Stage();
                 dialogStage.setTitle("Edit Configuration");
                 dialogStage.initOwner(mainApp.getPrimaryStage());
-
-              //  System.out.println(configuration.getCompileCmd());
-              //  System.out.println(configuration.getRunCmd());
-
-                ConfigurationScreenEdit controller = new ConfigurationScreenEdit(configuration);
-                loader.setController(controller);
-                controller.thisStage = dialogStage;
                 dialogStage.setScene(new Scene(loader.load()));
 
-                //    controller.setMainController(this);
+                ConfigurationScreen controller = loader.getController();
+                controller.setStage(dialogStage);
+                controller.setConfiguration(configuration);
                 dialogStage.showAndWait();
             } catch (ConfigurationIO.InvalidFormatException e) {
-                System.err.println("Could not open Configuration File");
+                showErrorDialog("Error", "Could not open Configuration File: " + e.getMessage());
             }
         }
-
-
     }
 
     @FXML
@@ -193,16 +182,17 @@ public class MainController {
         if (file != null) {
             try {
                 Path path = file.toPath();
-                Project project = ProjectIO.load(path); 
+                Project project = ProjectIO.load(path);
                 setCurrentProject(project);
                 showDetailedResults();
                 showPlaceholderDialog("Success", "Project loaded successfully: " + file.getName());
+            } catch (ProjectIO.InvalidFormatException e) {
+                showErrorDialog("Error", "Invalid project file format: " + e.getMessage());
             } catch (IOException e) {
                 showErrorDialog("Error", "Failed to load project: " + e.getMessage());
             }
         }
     }
-
     @FXML
     private void handleSaveProject() {
         if (currentProject == null) {
