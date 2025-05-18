@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 
 public class ConfigManagementController {
     @FXML
@@ -59,10 +60,50 @@ public class ConfigManagementController {
     public void initialize() {
         colName.setCellValueFactory(new PropertyValueFactory<>("name"));
         colLanguage.setCellValueFactory(new PropertyValueFactory<>("language"));
-        colCompileCommand.setCellValueFactory(new PropertyValueFactory<>("compileCommand"));
-        colRunCommand.setCellValueFactory(new PropertyValueFactory<>("runCommand"));
+        colCompileCommand.setCellValueFactory(new PropertyValueFactory<>("compileCmd"));
+        colRunCommand.setCellValueFactory(new PropertyValueFactory<>("runCmd"));
 
+        // Load configurations from both project and CONFIGURATIONS directory
+        loadConfigurations();
+        
         tableConfigurations.setItems(configurationList);
+    }
+
+    private void loadConfigurations() {
+        configurationList.clear();
+        
+        // First load configurations from the current project
+        if (mainController != null && mainController.getCurrentProject() != null) {
+            List<Configuration> projectConfigs = mainController.getCurrentProject().getConfigurations();
+            if (projectConfigs != null) {
+                configurationList.addAll(projectConfigs);
+            }
+        }
+
+        // Then load configurations from the CONFIGURATIONS directory
+        File configDir = new File("src/CONFIGURATIONS");
+        if (configDir.exists() && configDir.isDirectory()) {
+            File[] configFiles = configDir.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
+            if (configFiles != null) {
+                for (File configFile : configFiles) {
+                    try {
+                        Configuration config = ConfigurationIO.load(configFile.toPath());
+                        // Only add if not already in the list
+                        if (configurationList.stream().noneMatch(c -> c.getName().equals(config.getName()))) {
+                            configurationList.add(config);
+                        }
+                    } catch (IOException | ConfigurationIO.InvalidFormatException e) {
+                        System.err.println("Failed to load configuration from " + configFile.getName() + ": " + e.getMessage());
+                    }
+                }
+            }
+        }
+    }
+
+    @FXML
+    private void refreshConfigurations() {
+        loadConfigurations();
+        tableConfigurations.refresh();
     }
 
     @FXML

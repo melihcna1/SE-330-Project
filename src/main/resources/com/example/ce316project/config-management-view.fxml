@@ -22,6 +22,7 @@
         <Button fx:id="btnCreate" text="Create" onAction="#createConfiguration"/>
         <Button fx:id="btnEdit" text="Edit" onAction="#editConfiguration"/>
         <Button fx:id="btnDelete" text="Delete" onAction="#deleteConfiguration"/>
+        <Button fx:id="btnRefresh" text="Refresh" onAction="#refreshConfigurations"/>
         <Button fx:id="btnBack" text="Back to Main" onAction="#backToMain"/>
     </HBox>
 </VBox>

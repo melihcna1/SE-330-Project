@@ -301,7 +301,11 @@ public class MainController {
             // Create results and extract directories
             String extractPath = currentProject.getResultDir() + File.separator + "extracted";
             File extractDir = new File(extractPath);
-            extractDir.mkdirs();
+            if (!extractDir.exists()) {
+                if (!extractDir.mkdirs()) {
+                    throw new IOException("Failed to create extraction directory: " + extractPath);
+                }
+            }
 
             // Process ZIP files
             ZipProcessor zipProcessor = new ZipProcessor(currentProject.getSubmissionsDir(), extractPath);
@@ -316,7 +320,7 @@ public class MainController {
             showBatchRunProgress();
 
             // Process the extracted files in a background thread
-            new Thread(() -> {
+            Thread batchThread = new Thread(() -> {
                 try {
                     File inputFile = new File(currentProject.getTestCase().getInputFile());
                     File outputFile = new File(currentProject.getTestCase().getExpectedOutputFile());
@@ -343,8 +347,27 @@ public class MainController {
                         showErrorDialog("Processing Error", "Failed to process submissions: " + e.getMessage());
                     });
                     e.printStackTrace();
+                } finally {
+                    // Cleanup
+                    try {
+                        if (extractDir.exists()) {
+                            Files.walk(extractDir.toPath())
+                                .sorted((a, b) -> -a.compareTo(b))
+                                .forEach(path -> {
+                                    try {
+                                        Files.delete(path);
+                                    } catch (IOException e) {
+                                        System.err.println("Failed to delete: " + path);
+                                    }
+                                });
+                        }
+                    } catch (IOException e) {
+                        System.err.println("Failed to cleanup extraction directory: " + e.getMessage());
+                    }
                 }
-            }).start();
+            });
+            batchThread.setDaemon(true);
+            batchThread.start();
 
         } catch (Exception e) {
             showErrorDialog("Error", "Failed to process submissions: " + e.getMessage());

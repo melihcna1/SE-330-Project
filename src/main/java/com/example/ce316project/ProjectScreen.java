@@ -108,23 +108,18 @@ public class ProjectScreen {
             showAlert("CONFIGURATION IS EMPTY", "Please Enter the Configuration.");
         } else if (txtfieldInputFile.getText().isBlank()) {
             showAlert("INPUT FILE IS EMPTY", "Please Enter the Input File.");
-
         } else if (txtfieldexpectedOutputFile.getText().isBlank()) {
             showAlert("EXPECTED OUTPUT FILE IS EMPTY", "Please Enter the Expected Output File.");
-
         } else if (txtfieldSubmissionFolder.getText().isBlank()) {
             showAlert("SUBMISSION FOLDER IS EMPTY", "Please Enter the Submission Folder.");
-
         } else if (txtfieldResultFolder.getText().isBlank()) {
             showAlert("RESULT FOLDER IS EMPTY", "Please Enter the Result Folder.");
-
         } else {
             try {
                 new File("src/PROJECTS").mkdirs();
             } catch (Exception e) {
                 e.printStackTrace();
             }
-
 
             try {
                 String s = "src/PROJECTS/";
@@ -136,14 +131,10 @@ public class ProjectScreen {
                 ProjectIO.save(project, path);
             } catch (FileAlreadyExistsException e) {
                 showAlert("FILE ALREADY EXISTS", "Please Enter a different name or delete the other file.");
-
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-
         }
-
     }
 
     private void showAlert(String title, String message) {

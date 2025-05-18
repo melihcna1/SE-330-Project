@@ -86,7 +86,7 @@ public class ZipProcessor {
                 results.add(result);
 
             } catch (IOException e) {
-                // Error handling remains the same
+                // Error handling
                 System.err.println("Error processing ZIP file " + zipFile.getName() + ": " + e.getMessage());
                 e.printStackTrace();
                 failedFiles.add(zipFile.getName());

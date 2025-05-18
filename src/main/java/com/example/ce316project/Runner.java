@@ -124,15 +124,31 @@ public class Runner {
         StringBuilder diff = new StringBuilder();
         int maxLines = Math.max(expectedLines.size(), actualLines.size());
 
+        // Add header information
+        diff.append("Comparison Results:\n");
+        diff.append("Expected file: ").append(expected.getName()).append("\n");
+        diff.append("Actual file: ").append(actual.getName()).append("\n");
+        diff.append("Total lines in expected: ").append(expectedLines.size()).append("\n");
+        diff.append("Total lines in actual: ").append(actualLines.size()).append("\n\n");
+
+        boolean hasDifferences = false;
         for (int i = 0; i < maxLines; i++) {
             String expectedLine = i < expectedLines.size() ? expectedLines.get(i) : "";
             String actualLine = i < actualLines.size() ? actualLines.get(i) : "";
 
             if (!expectedLine.equals(actualLine)) {
+                hasDifferences = true;
                 diff.append(String.format("Line %d:\n", i + 1));
                 diff.append(String.format("Expected: %s\n", expectedLine));
                 diff.append(String.format("Actual  : %s\n", actualLine));
             }
+        }
+
+        if (!hasDifferences) {
+            diff.append("\nFiles match exactly.\n");
+            diff.append("Content summary:\n");
+            diff.append("First line: ").append(expectedLines.isEmpty() ? "<empty>" : expectedLines.get(0)).append("\n");
+            diff.append("Last line: ").append(expectedLines.isEmpty() ? "<empty>" : expectedLines.get(expectedLines.size() - 1)).append("\n");
         }
 
         return diff.toString();
