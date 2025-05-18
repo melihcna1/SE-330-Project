@@ -46,6 +46,7 @@ public class ZipProcessor {
      *
      * @return List of StudentResult objects for processed submissions
      */
+
     public List<StudentResult> processAllZipFiles() {
         List<StudentResult> results = new ArrayList<>();
         File dir = new File(submissionsDir);
@@ -73,17 +74,19 @@ public class ZipProcessor {
                 String extractPath = extractZipFile(zipFile, studentId);
                 processedFiles.add(zipFile.getName());
 
-                // Create a StudentResult with initial "Processing" status
+                // Create successful result after extraction
                 StudentResult result = new StudentResult(
                         studentId,
-                        "Extracting",  // Initial status
+                        "Ready",  // Updated status
                         "",
-                        "Extracting submission...",
+                        "Extraction completed successfully",
                         "",
                         System.currentTimeMillis()
                 );
                 results.add(result);
+
             } catch (IOException e) {
+                // Error handling remains the same
                 System.err.println("Error processing ZIP file " + zipFile.getName() + ": " + e.getMessage());
                 e.printStackTrace();
                 failedFiles.add(zipFile.getName());
