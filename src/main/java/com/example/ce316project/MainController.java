@@ -4,11 +4,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -16,6 +18,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -146,21 +149,37 @@ public class MainController {
     }
 
     @FXML
-    private void handleDeleteConfiguration() throws IOException {
+    private void handleDeleteConfiguration() {
+        // Show configuration selection dialog
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Delete Configuration File");
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("IAE Configuration Files", "*.json"));
-        File file = fileChooser.showOpenDialog(mainApp.getPrimaryStage());
-        if (file != null) {
-            System.out.println("Deleting Configuration: " + file.getPath());
-            if (file.delete()) {
-                System.out.println("File deleted successfully");
-            } else {
-                System.out.println("Failed to delete the file");
+        fileChooser.setTitle("Select Configuration to Delete");
+        fileChooser.setInitialDirectory(new File("src/CONFIGURATIONS"));
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON Files", "*.json"));
+
+        File configFile = fileChooser.showOpenDialog(mainPane.getScene().getWindow());
+
+        if (configFile != null) {
+            // Confirm deletion
+            Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
+            confirm.setTitle("Delete Configuration");
+            confirm.setHeaderText("Are you sure you want to delete this configuration?");
+            confirm.setContentText("Configuration: " + configFile.getName());
+
+            Optional<ButtonType> result = confirm.showAndWait();
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                try {
+                    // Delete the file
+                    Files.delete(configFile.toPath());
+
+                    // Show success message
+                    showPlaceholderDialog("Success", "Configuration deleted successfully!");
+
+                } catch (IOException e) {
+                    showErrorDialog("Error", "Failed to delete configuration: " + e.getMessage());
+                }
             }
         }
     }
-
 
     @FXML
     private void handleOpenProject() {
