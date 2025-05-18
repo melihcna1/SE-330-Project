@@ -2,6 +2,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.ce316project.ConfigurationEditController" spacing="10">
     <padding>
@@ -15,15 +17,7 @@
     <TextField fx:id="txtLanguage"/>
 
     <Label text="Tool Type"/>
-    <ChoiceBox fx:id="choiceToolType" prefWidth="200.0">
-        <items>
-            <fx:constant fx:value="COMPILER"/>
-            <fx:constant fx:value="INTERPRETER"/>
-            <fx:constant fx:value="UNZIP"/>
-            <fx:constant fx:value="DIFF"/>
-            <fx:constant fx:value="CUSTOM"/>
-        </items>
-    </ChoiceBox>
+    <ChoiceBox fx:id="choiceToolType" prefWidth="200.0"/>
 
     <Label text="Executable"/>
     <TextField fx:id="txtExecutable"/>

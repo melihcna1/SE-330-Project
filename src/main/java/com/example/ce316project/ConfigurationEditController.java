@@ -1,11 +1,11 @@
 package com.example.ce316project;
 
 import javafx.fxml.FXML;
+import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
-import java.util.Collections;
+import javafx.collections.FXCollections;
 
 public class ConfigurationEditController {
     @FXML
@@ -13,11 +13,15 @@ public class ConfigurationEditController {
     @FXML
     private TextField txtLanguage;
     @FXML
-    private ChoiceBox<ToolType> choiceToolType;
+    private ChoiceBox<String> choiceToolType;
     @FXML
     private TextField txtExecutable;
     @FXML
     private TextField txtCompilerArgs;
+    @FXML
+    private Button btnSave;
+    @FXML
+    private Button btnCancel;
 
     private Stage dialogStage;
     private MainController mainController;
@@ -32,31 +36,19 @@ public class ConfigurationEditController {
         this.mainController = mainController;
     }
 
-    public void setConfiguration(Configuration config) {
-        this.configuration = config;
-        if (config != null) {
-            txtName.setText(config.getName());
-            txtLanguage.setText(config.getLanguage());
-            ToolSpec tool = config.getTools();
-            if (tool != null) {
-                txtExecutable.setText(tool.getExecutable());
-                txtCompilerArgs.setText(tool.getCompilerArgs() != null ? tool.getCompilerArgs() : "");
-                choiceToolType.setValue(tool.getType());
-            } else {
-                choiceToolType.setValue(ToolType.COMPILER);
-            }
-        } else {
-            choiceToolType.setValue(ToolType.COMPILER);
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+        if (configuration != null) {
+            txtName.setText(configuration.getName());
+            txtLanguage.setText(configuration.getLanguage());
+            choiceToolType.setValue(configuration.getToolType().toString());
+            txtExecutable.setText(configuration.getRunCall());
+            txtCompilerArgs.setText(configuration.getCompilerArguments());
         }
     }
 
     public Configuration getConfiguration() {
-        ToolSpec tool = new ToolSpec(
-                choiceToolType.getValue(),
-                txtExecutable.getText(),
-                txtCompilerArgs.getText()
-        );
-        return new Configuration(txtName.getText(), txtLanguage.getText(), tool, choiceToolType.getValue());
+        return configuration;
     }
 
     public boolean isSaved() {
@@ -65,7 +57,13 @@ public class ConfigurationEditController {
 
     @FXML
     public void initialize() {
-        choiceToolType.getItems().setAll(ToolType.values());
+        choiceToolType.setItems(FXCollections.observableArrayList(
+            "COMPILER",
+            "INTERPRETER",
+            "UNZIP",
+            "DIFF",
+            "CUSTOM"
+        ));
     }
 
     @FXML
@@ -74,16 +72,22 @@ public class ConfigurationEditController {
         String language = txtLanguage.getText();
         String executable = txtExecutable.getText();
         String compilerArgs = txtCompilerArgs.getText();
-        ToolType toolType = choiceToolType.getValue();
+        String toolTypeStr = choiceToolType.getValue();
 
-        if (name.isEmpty() || language.isEmpty() || executable.isEmpty() || toolType == null) {
+        if (name.isEmpty() || language.isEmpty() || executable.isEmpty() || toolTypeStr == null) {
             mainController.showErrorDialog("Error", "Name, Language, Executable, and Tool Type are required!");
             return;
         }
 
-        configuration = getConfiguration();
-        saved = true;
-        dialogStage.close();
+        try {
+            ToolType toolType = ToolType.valueOf(toolTypeStr);
+            ToolSpec tool = new ToolSpec(toolType, executable, compilerArgs, executable);
+            configuration = new Configuration(name, language, tool, toolType);
+            saved = true;
+            dialogStage.close();
+        } catch (IllegalArgumentException e) {
+            mainController.showErrorDialog("Error", "Invalid tool type: " + toolTypeStr);
+        }
     }
 
     @FXML
