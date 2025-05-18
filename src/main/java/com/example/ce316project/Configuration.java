@@ -8,7 +8,7 @@ public class Configuration {
     private String language;
     private ToolSpec tool;
     private ToolType toolType;
-    private ToolType toolType;
+
 
     public Configuration(String name, String language, ToolSpec tool, ToolType toolType) {
         this.name = name;
