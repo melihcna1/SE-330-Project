@@ -41,7 +41,13 @@ public class ProjectScreen {
         txtfieldConfiguration.clear();
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Select Configuration");
+        
+        // Ensure CONFIGURATIONS directory exists
         File initialDirectory = new File("src/CONFIGURATIONS");
+        if (!initialDirectory.exists()) {
+            initialDirectory.mkdirs();
+        }
+        
         fileChooser.setInitialDirectory(initialDirectory);
         fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON", "*.json"));
         File file = fileChooser.showOpenDialog(thisStage);
