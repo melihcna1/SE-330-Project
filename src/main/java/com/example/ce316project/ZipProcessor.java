@@ -46,71 +46,59 @@ public class ZipProcessor {
      *
      * @return List of StudentResult objects for processed submissions
      */
+
     public List<StudentResult> processAllZipFiles() {
         List<StudentResult> results = new ArrayList<>();
         File dir = new File(submissionsDir);
 
         if (!dir.exists() || !dir.isDirectory()) {
-            String error = "Submissions directory does not exist: " + submissionsDir;
-            results.add(new StudentResult("SYSTEM", "Failed", error, error, "", System.currentTimeMillis()));
+            System.err.println("Submissions directory does not exist: " + submissionsDir);
             return results;
         }
 
         File[] zipFiles = dir.listFiles((d, name) -> name.toLowerCase().endsWith(".zip"));
 
         if (zipFiles == null || zipFiles.length == 0) {
-            String error = "No ZIP files found in directory: " + submissionsDir;
-            results.add(new StudentResult("SYSTEM", "Failed", error, error, "", System.currentTimeMillis()));
+            System.err.println("No ZIP files found in directory: " + submissionsDir);
             return results;
         }
 
         for (File zipFile : zipFiles) {
             String studentId = getStudentIdFromFilename(zipFile.getName());
-            StringBuilder log = new StringBuilder();
             try {
-                // Check file size
-                if (zipFile.length() > 50 * 1024 * 1024) { // 50MB limit
-                    throw new IOException("ZIP file too large (max 50MB): " + zipFile.getName());
-                }
-
                 // Validate ZIP file first
                 if (!isValidZipFile(zipFile)) {
                     throw new IOException("Invalid or corrupted ZIP file: " + zipFile.getName());
                 }
 
-                // Check for zip slip vulnerability
-                try (ZipFile zip = new ZipFile(zipFile)) {
-                    if (zip.stream().anyMatch(entry -> entry.getName().contains(".."))) {
-                        throw new IOException("Security violation: ZIP entry contains path traversal");
-                    }
-                }
-
-                log.append("Starting extraction...\n");
                 String extractPath = extractZipFile(zipFile, studentId);
-                log.append("Extracted to: ").append(extractPath).append("\n");
                 processedFiles.add(zipFile.getName());
 
                 // Create successful result after extraction
-                results.add(new StudentResult(
-                    studentId,
-                    "Ready",
-                    "",
-                    log.toString(),
-                    "",
-                    System.currentTimeMillis()
-                ));
+                StudentResult result = new StudentResult(
+                        studentId,
+                        "Ready",  // Updated status
+                        "",
+                        "Extraction completed successfully",
+                        "",
+                        System.currentTimeMillis()
+                );
+                results.add(result);
 
             } catch (IOException e) {
-                log.append("Error: ").append(e.getMessage()).append("\n");
+                // Error handling
+                System.err.println("Error processing ZIP file " + zipFile.getName() + ": " + e.getMessage());
+                e.printStackTrace();
                 failedFiles.add(zipFile.getName());
-                results.add(new StudentResult(
-                    studentId,
-                    "Failed",
-                    "Error processing submission: " + e.getMessage(),
-                    log.toString(),
-                    "",
-                    System.currentTimeMillis()
-                ));
+                StudentResult result = new StudentResult(
+                        studentId,
+                        "Failed",
+                        "Error extracting ZIP: " + e.getMessage(),
+                        "",
+                        "",
+                        System.currentTimeMillis()
+                );
+                results.add(result);
             }
         }
 
@@ -125,9 +113,9 @@ public class ZipProcessor {
      */
     private boolean isValidZipFile(File file) {
         try (ZipFile zipFile = new ZipFile(file, StandardCharsets.UTF_8)) {
-            // Check for at least one entry and verify CRC
-            return zipFile.stream().findFirst().isPresent();
+            return true;
         } catch (IOException e) {
+            System.err.println("Invalid ZIP file: " + file.getName() + " - " + e.getMessage());
             return false;
         }
     }
@@ -147,14 +135,14 @@ public class ZipProcessor {
         // Clean up existing directory
         if (destDirFile.exists()) {
             Files.walk(destDirFile.toPath())
-                .sorted((a, b) -> -a.compareTo(b))
-                .forEach(path -> {
-                    try {
-                        Files.delete(path);
-                    } catch (IOException e) {
-                        System.err.println("Failed to delete: " + path);
-                    }
-                });
+                    .sorted((a, b) -> -a.compareTo(b))
+                    .forEach(path -> {
+                        try {
+                            Files.delete(path);
+                        } catch (IOException e) {
+                            System.err.println("Failed to delete: " + path);
+                        }
+                    });
         }
         destDirFile.mkdirs();
 
@@ -167,11 +155,6 @@ public class ZipProcessor {
                     } else {
                         // Create parent directories
                         new File(newFile.getParent()).mkdirs();
-
-                        // Extract file with a size limit check
-                        if (entry.getSize() > 10 * 1024 * 1024) { // 10MB per file limit
-                            throw new IOException("ZIP entry too large (max 10MB): " + entry.getName());
-                        }
 
                         // Extract file
                         try (FileOutputStream fos = new FileOutputStream(newFile)) {
@@ -233,5 +216,4 @@ public class ZipProcessor {
     public List<String> getFailedFiles() {
         return failedFiles;
     }
-}
-
+} 

@@ -1,7 +1,5 @@
 package com.example.ce316project;
 
-import java.util.Objects;
-
 /**
  * Holds compile/run parameters and test-case definitions.
  */
@@ -11,68 +9,49 @@ public class Configuration {
     private ToolSpec tool;
     private ToolType toolType;
 
+
     public Configuration(String name, String language, ToolSpec tool, ToolType toolType) {
-        this.name = Objects.requireNonNull(name, "Name cannot be null");
-        this.language = Objects.requireNonNull(language, "Language cannot be null");
-        this.tool = Objects.requireNonNull(tool, "Tool cannot be null");
-        this.toolType = Objects.requireNonNull(toolType, "Tool type cannot be null");
-        validateConfiguration();
+        this.name = name;
+        this.language = language;
+        this.tool = tool;
+        this.toolType = toolType;
     }
-
     public Configuration(String name, String language, ToolSpec tool) {
-        this(name, language, tool, tool.getType());
+        this.name = name;
+        this.language = language;
+        this.tool = tool;
+    }
+    public Configuration(String name, String language, String toolType, String executable,String compilerArgs,String location){
+        this.name = name;
+        this.language=language;
+        this.toolType=ToolType.valueOf(toolType);
+        this.tool=new ToolSpec(ToolType.valueOf(toolType),executable,compilerArgs,location);
     }
 
-    public Configuration(String name, String language, String toolType, String executable, String compilerArgs, String location) {
-        this.name = Objects.requireNonNull(name, "Name cannot be null");
-        this.language = Objects.requireNonNull(language, "Language cannot be null");
-        this.toolType = ToolType.valueOf(Objects.requireNonNull(toolType, "Tool type cannot be null"));
-        this.tool = new ToolSpec(this.toolType,
-                               Objects.requireNonNull(executable, "Executable cannot be null"),
-                               compilerArgs,
-                               Objects.requireNonNull(location, "Location cannot be null"));
-        validateConfiguration();
-    }
-
-    private void validateConfiguration() {
-        if (name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be empty");
-        }
-        if (language.trim().isEmpty()) {
-            throw new IllegalArgumentException("Language cannot be empty");
-        }
-        if (tool.getType() != toolType) {
-            throw new IllegalArgumentException("Tool type mismatch between tool and configuration");
-        }
-    }
 
     public ToolType getToolType() {
         return toolType;
     }
 
     public void setToolType(ToolType toolType) {
-        this.toolType = Objects.requireNonNull(toolType, "Tool type cannot be null");
-        validateConfiguration();
+        this.toolType = toolType;
     }
+
 
     public String getName() {
         return name;
     }
 
     public void setName(String name) {
-        this.name = Objects.requireNonNull(name, "Name cannot be null");
-        if (name.trim().isEmpty()) {
-            throw new IllegalArgumentException("Name cannot be empty");
-        }
+        this.name = name;
     }
 
-    public ToolSpec getTool() {
+    public ToolSpec getTools() {
         return tool;
     }
 
-    public void setTool(ToolSpec tool) {
-        this.tool = Objects.requireNonNull(tool, "Tool cannot be null");
-        validateConfiguration();
+    public void setTools(ToolSpec tool) {
+        this.tool = tool;
     }
 
     public String getLanguage() {
@@ -80,10 +59,7 @@ public class Configuration {
     }
 
     public void setLanguage(String language) {
-        this.language = Objects.requireNonNull(language, "Language cannot be null");
-        if (language.trim().isEmpty()) {
-            throw new IllegalArgumentException("Language cannot be empty");
-        }
+        this.language = language;
     }
 
     public String getCompileCmd() {
@@ -100,17 +76,17 @@ public class Configuration {
         return null;
     }
 
-    public String getRunCall() {
+    public String getRunCall(){
         return tool.getExecutable();
     }
-
-    public String getCompilerArguments() {
+    public String getCompilerArguments(){
         return tool.getCompilerArgs();
     }
+
+
 
     @Override
     public String toString() {
         return name;
     }
 }
-

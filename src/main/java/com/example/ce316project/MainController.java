@@ -294,7 +294,7 @@ public class MainController {
 
             // Get the first configuration and verify it's valid
             Configuration config = configs.get(0);
-            if (config == null || config.getTool() == null) {
+            if (config == null || config.getTools() == null) {
                 throw new IllegalStateException("Invalid configuration");
             }
 
@@ -374,7 +374,6 @@ public class MainController {
             e.printStackTrace();
         }
     }
-
     @FXML
     private void handleManageConfigurations() {
         try {
@@ -533,4 +532,3 @@ public class MainController {
         }
     }
 }
-
