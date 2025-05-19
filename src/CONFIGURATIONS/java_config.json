@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0",
+  "payload": {
+    "name": "Java Configuration",
+    "language": "Java",
+    "toolType": "COMPILER",
+    "tool": {
+      "type": "COMPILER",
+      "executable": "javac",
+      "compilerArgs": "-d .",
+      "location": "javac"
+    }
+  }
+} 

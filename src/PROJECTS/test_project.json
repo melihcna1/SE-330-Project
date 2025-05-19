@@ -1,0 +1,25 @@
+{
+  "projectName": "Test Project",
+  "configurationPath": "F:/SE-330-Project/src/CONFIGURATIONS/java_config.json",
+  "submissionsDir": "F:/SE-330-Project/src/SUBMISSIONS",
+  "resultDir": "F:/SE-330-Project/src/RESULTS",
+  "testCase": {
+    "inputFile": "F:/SE-330-Project/src/RESULTS/input.txt",
+    "expectedOutputFile": "F:/SE-330-Project/src/RESULTS/expected_output.txt"
+  },
+  "results": [],
+  "configurations": [
+    {
+      "name": "Java Configuration",
+      "language": "Java",
+      "toolType": "COMPILER",
+      "tool": {
+        "type": "COMPILER",
+        "executable": "javac",
+        "compilerArgs": "-d .",
+        "location": "javac"
+      }
+    }
+  ],
+  "schemaVersion": "1.0"
+} 
