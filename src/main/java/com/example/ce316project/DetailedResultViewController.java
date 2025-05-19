@@ -47,6 +47,26 @@ public class DetailedResultViewController {
         colStudentId.setCellValueFactory(new PropertyValueFactory<>("studentId"));
         colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
 
+        // Add CSS styles based on status
+        colStatus.setCellFactory(column -> new TableCell<StudentResult, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    switch (item) {
+                        case "Passed" -> setStyle("-fx-text-fill: green;");
+                        case "Failed" -> setStyle("-fx-text-fill: red;");
+                        case "Processing" -> setStyle("-fx-text-fill: blue;");
+                        default -> setStyle("");
+                    }
+                }
+            }
+        });
+
         colActions.setCellFactory(param -> new TableCell<StudentResult, Void>() {
             private final Button saveButton = new Button("Save Log");
             private final Button printButton = new Button("Print Log");
@@ -76,11 +96,23 @@ public class DetailedResultViewController {
 
         tableResults.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
-                txtDetails.setText("Student ID: " + newSelection.getStudentId() + "\n" +
-                        "Status: " + newSelection.getStatus() + "\n" +
-                        "Errors:\n" + newSelection.getErrors() + "\n" +
-                        "Log:\n" + newSelection.getLog() + "\n" +
-                        "Diff Output:\n" + newSelection.getDiffOutput());
+                StringBuilder details = new StringBuilder();
+                details.append("Student ID: ").append(newSelection.getStudentId()).append("\n\n");
+                details.append("Status: ").append(newSelection.getStatus()).append("\n\n");
+
+                if (!newSelection.getErrors().isEmpty() && !newSelection.getErrors().equals("No errors")) {
+                    details.append("Errors:\n").append(newSelection.getErrors()).append("\n\n");
+                }
+
+                if (!newSelection.getLog().isEmpty() && !newSelection.getLog().equals("No log available")) {
+                    details.append("Execution Log:\n").append(newSelection.getLog()).append("\n\n");
+                }
+
+                if (!newSelection.getDiffOutput().isEmpty() && !newSelection.getDiffOutput().equals("No diff output available")) {
+                    details.append("Output Comparison:\n").append(newSelection.getDiffOutput());
+                }
+
+                txtDetails.setText(details.toString());
             } else {
                 txtDetails.setText("");
             }
@@ -124,12 +156,19 @@ public class DetailedResultViewController {
     }
 
     @FXML
-    private void refreshResults() {
-        if (mainController != null && mainController.getCurrentProject() != null && mainController.getCurrentProject().getResults() != null) {
-            setResults(FXCollections.observableArrayList(mainController.getCurrentProject().getResults()));
-        } else {
-            resultList.clear();
-            mainController.showErrorDialog("Error", "No project or results available to refresh!");
+    public void refreshResults() {
+        if (mainController != null && mainController.getCurrentProject() != null) {
+            // Force refresh the table
+            tableResults.refresh();
+            // If there's a selected item, refresh its details
+            StudentResult selected = tableResults.getSelectionModel().getSelectedItem();
+            if (selected != null) {
+                txtDetails.setText("Student ID: " + selected.getStudentId() + "\n" +
+                        "Status: " + selected.getStatus() + "\n" +
+                        "Errors:\n" + selected.getErrors() + "\n" +
+                        "Log:\n" + selected.getLog() + "\n" +
+                        "Diff Output:\n" + selected.getDiffOutput());
+            }
         }
     }
 
@@ -138,3 +177,4 @@ public class DetailedResultViewController {
         mainController.showMainView();
     }
 }
+

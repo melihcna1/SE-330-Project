@@ -9,17 +9,34 @@
     </padding>
 
     <Label text="Batch Run Progress"/>
-    <TableView fx:id="tableProgress" prefHeight="300.0">
+    <TableView fx:id="tableProgress" prefHeight="300.0" VBox.vgrow="ALWAYS">
         <columns>
             <TableColumn fx:id="colStudentId" text="Student ID" prefWidth="150.0"/>
             <TableColumn fx:id="colStatus" text="Status" prefWidth="100.0"/>
         </columns>
     </TableView>
     
-    <Label fx:id="lblProgress" text="Waiting to start..." />
+    <VBox spacing="5">
+        <ProgressBar fx:id="progressBar" prefWidth="Infinity" progress="0.0"/>
+        <Label fx:id="lblProgress" text="Waiting to start..." />
+        <GridPane hgap="10" vgap="5">
+            <Label text="Total:" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <Label fx:id="lblTotal" text="0" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+            <Label text="Passed:" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <Label fx:id="lblPassed" text="0" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+            <Label text="Failed:" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Label fx:id="lblFailed" text="0" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+            <Label text="Processing:" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <Label fx:id="lblProcessing" text="0" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+        </GridPane>
+    </VBox>
 
     <HBox spacing="10">
         <Button fx:id="btnStop" text="Stop" onAction="#stopBatchRun"/>
-        <Button fx:id="btnBack" text="Back to Results" onAction="#backToResults"/>
+        <Button fx:id="btnBack" text="Back to Results" onAction="#backToResults" disable="true"/>
     </HBox>
 </VBox>
+

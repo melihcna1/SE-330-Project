@@ -45,7 +45,8 @@ public class Runner {
                 boolean compileSuccess = compile(submissionDir, log);
                 if (!compileSuccess) {
                     errors = "Compilation failed";
-                    return new StudentResult(studentId, status, errors, log.toString(), "", System.currentTimeMillis());
+                    diffOutput = "Compilation Error:\n" + log.toString();
+                    return new StudentResult(studentId, status, errors, log.toString(), diffOutput, System.currentTimeMillis());
                 }
             }
 
@@ -53,16 +54,18 @@ public class Runner {
             boolean runSuccess = runProgram(submissionDir, actualOutputFile, log);
             if (!runSuccess) {
                 errors = "Program execution failed";
-                return new StudentResult(studentId, status, errors, log.toString(), "", System.currentTimeMillis());
+                diffOutput = "Runtime Error:\n" + log.toString();
+                return new StudentResult(studentId, status, errors, log.toString(), diffOutput, System.currentTimeMillis());
             }
 
             // Compare output
             diffOutput = compareOutput(expectedOutputFile, actualOutputFile);
-            status = diffOutput.isEmpty() ? "Passed" : "Failed";
-            errors = diffOutput.isEmpty() ? "" : "Output mismatch";
+            status = diffOutput.contains("Files match exactly") ? "Passed" : "Failed";
+            errors = diffOutput.contains("Files match exactly") ? "" : "Output mismatch";
 
         } catch (Exception e) {
             errors = "Error: " + e.getMessage();
+            diffOutput = "Exception occurred:\n" + e.getMessage();
             e.printStackTrace();
         }
 
@@ -81,7 +84,7 @@ public class Runner {
         String output = captureOutput(process);
         log.append("Compilation output:\n").append(output).append("\n");
 
-        return process.waitFor() == 0;
+        return process.waitFor(TIMEOUT_SECONDS, TimeUnit.SECONDS) && process.exitValue() == 0;
     }
 
     private boolean runProgram(File dir, File outputFile, StringBuilder log) throws IOException, InterruptedException {
@@ -91,15 +94,36 @@ public class Runner {
         ProcessBuilder pb = new ProcessBuilder();
         pb.directory(dir);
         pb.command(runCmd.split(" "));
-        pb.redirectInput(inputFile);
+
+        // Redirect input from the test input file
+        if (inputFile.exists()) {
+            pb.redirectInput(inputFile);
+        }
+
+        // Create a temporary file for error output
+        File errorFile = new File(dir, "error.txt");
+        pb.redirectError(errorFile);
         pb.redirectOutput(outputFile);
-        pb.redirectErrorStream(true);
 
         Process process = pb.start();
-        String output = captureOutput(process);
-        log.append("Execution output:\n").append(output).append("\n");
+        boolean completed = process.waitFor(TIMEOUT_SECONDS, TimeUnit.SECONDS);
 
-        return process.waitFor(TIMEOUT_SECONDS, TimeUnit.SECONDS) && process.exitValue() == 0;
+        // Read error output if any
+        if (errorFile.exists()) {
+            String errorOutput = Files.readString(errorFile.toPath());
+            if (!errorOutput.isEmpty()) {
+                log.append("Error output:\n").append(errorOutput).append("\n");
+            }
+            errorFile.delete();
+        }
+
+        if (!completed) {
+            process.destroyForcibly();
+            log.append("Process timed out after ").append(TIMEOUT_SECONDS).append(" seconds\n");
+            return false;
+        }
+
+        return process.exitValue() == 0;
     }
 
     private String captureOutput(Process process) throws IOException {
@@ -118,8 +142,21 @@ public class Runner {
             return "No output file generated";
         }
 
-        List<String> expectedLines = Files.readAllLines(expected.toPath());
-        List<String> actualLines = Files.readAllLines(actual.toPath());
+        // Read and normalize the lines (trim whitespace and remove empty lines at the end)
+        List<String> expectedLines = Files.readAllLines(expected.toPath()).stream()
+            .map(String::trim)
+            .collect(java.util.stream.Collectors.toList());
+        List<String> actualLines = Files.readAllLines(actual.toPath()).stream()
+            .map(String::trim)
+            .collect(java.util.stream.Collectors.toList());
+
+        // Remove trailing empty lines
+        while (!expectedLines.isEmpty() && expectedLines.get(expectedLines.size() - 1).isEmpty()) {
+            expectedLines.remove(expectedLines.size() - 1);
+        }
+        while (!actualLines.isEmpty() && actualLines.get(actualLines.size() - 1).isEmpty()) {
+            actualLines.remove(actualLines.size() - 1);
+        }
 
         StringBuilder diff = new StringBuilder();
         int maxLines = Math.max(expectedLines.size(), actualLines.size());
@@ -139,18 +176,19 @@ public class Runner {
             if (!expectedLine.equals(actualLine)) {
                 hasDifferences = true;
                 diff.append(String.format("Line %d:\n", i + 1));
-                diff.append(String.format("Expected: %s\n", expectedLine));
-                diff.append(String.format("Actual  : %s\n", actualLine));
+                diff.append(String.format("Expected: '%s'\n", expectedLine));
+                diff.append(String.format("Actual  : '%s'\n", actualLine));
             }
         }
 
         if (!hasDifferences) {
             diff.append("\nFiles match exactly.\n");
             diff.append("Content summary:\n");
-            diff.append("First line: ").append(expectedLines.isEmpty() ? "<empty>" : expectedLines.get(0)).append("\n");
-            diff.append("Last line: ").append(expectedLines.isEmpty() ? "<empty>" : expectedLines.get(expectedLines.size() - 1)).append("\n");
+            diff.append("First line: '").append(expectedLines.isEmpty() ? "<empty>" : expectedLines.get(0)).append("'\n");
+            diff.append("Last line: '").append(expectedLines.isEmpty() ? "<empty>" : expectedLines.get(expectedLines.size() - 1)).append("'\n");
         }
 
         return diff.toString();
     }
 }
+
